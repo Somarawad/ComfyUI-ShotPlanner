@@ -1,0 +1,14 @@
+[project]
+name = "comfyui-shotplanner"
+description = "Turn a brief or script into a shot list with image and video prompts per shot (Claude, GPT, Gemini or offline)."
+version = "1.0.0"
+license = { file = "LICENSE" }
+dependencies = []
+
+[project.urls]
+Repository = "https://github.com/<your-username>/ComfyUI-ShotPlanner"
+
+[tool.comfy]
+PublisherId = ""
+DisplayName = "Shot Planner"
+Icon = ""
