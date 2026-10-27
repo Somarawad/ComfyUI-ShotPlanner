@@ -5,6 +5,7 @@ tested on its own."""
 import json
 import os
 import re
+import time
 import urllib.error
 import urllib.request
 
@@ -13,7 +14,7 @@ PROVIDERS = ["offline", "anthropic", "openai", "gemini"]
 DEFAULT_MODELS = {
     "anthropic": "claude-sonnet-4-5",
     "openai": "gpt-4o-mini",
-    "gemini": "gemini-2.5-flash",
+    "gemini": "gemini-flash-lite-latest",
 }
 
 ENV_KEYS = {
@@ -63,7 +64,22 @@ def _user_prompt(brief, num_shots, style, aspect_ratio, shot_seconds, extra):
     return "\n\n".join(parts)
 
 
-def _post_json(url, payload, headers, timeout=120):
+RETRY_CODES = {429, 500, 502, 503, 529}
+
+
+def _post_json(url, payload, headers, timeout=300, retries=2, backoff=4):
+    """POST JSON with a retry when the provider is busy (429/5xx)."""
+    for attempt in range(retries + 1):
+        try:
+            return _post_json_once(url, payload, headers, timeout)
+        except ShotPlannerError as e:
+            if attempt < retries and getattr(e, "status", None) in RETRY_CODES:
+                time.sleep(backoff * (attempt + 1))
+                continue
+            raise
+
+
+def _post_json_once(url, payload, headers, timeout):
     data = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(url, data=data, method="POST",
                                  headers={"Content-Type": "application/json", **headers})
@@ -72,9 +88,14 @@ def _post_json(url, payload, headers, timeout=120):
             return json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as e:
         body = e.read().decode("utf-8", "replace")[:500]
-        raise ShotPlannerError(f"API error {e.code}: {body}") from e
+        err = ShotPlannerError(f"API error {e.code}: {body}")
+        err.status = e.code
+        raise err from e
     except urllib.error.URLError as e:
         raise ShotPlannerError(f"Could not reach the API: {e.reason}") from e
+    except TimeoutError as e:
+        raise ShotPlannerError(f"The API did not answer within {timeout} seconds. Try again, "
+                               "use fewer shots, or pick a faster model.") from e
 
 
 def _call_anthropic(model, key, system, user):

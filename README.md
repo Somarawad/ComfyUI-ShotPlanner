@@ -31,7 +31,7 @@ Brief  ─►  Shot Planner  ─►  image_prompts (list) ─► your image mode
 **Manual:**
 ```
 cd ComfyUI/custom_nodes
-git clone https://github.com/<your-username>/ComfyUI-ShotPlanner
+git clone https://github.com/Somarawad/ComfyUI-ShotPlanner
 ```
 Restart ComfyUI. No extra Python packages needed (standard library only).
 
@@ -43,11 +43,11 @@ Restart ComfyUI. No extra Python packages needed (standard library only).
 |---|---|---|
 | anthropic | `ANTHROPIC_API_KEY` | claude-sonnet-4-5 |
 | openai | `OPENAI_API_KEY` | gpt-4o-mini |
-| gemini | `GEMINI_API_KEY` | gemini-2.5-flash |
+| gemini | `GEMINI_API_KEY` | gemini-flash-lite-latest (free tier at aistudio.google.com) |
 
 Windows portable: add `set ANTHROPIC_API_KEY=sk-...` to the top of `run_nvidia_gpu.bat`.
 You can also paste a key into the node's `api_key` field, **but it is then saved inside the workflow file**, so don't share that workflow.
-Any model name the provider supports can be typed into the `model` field.
+Any model name the provider supports can be typed into the `model` field. Busy-server errors (429/503) are retried automatically.
 
 ## Example workflows
 
