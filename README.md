@@ -102,6 +102,71 @@ cd tests
 python -m unittest
 ```
 
+## Video stage
+
+Nodes under **Shot Planner/Video** for the step between approved keyframes and the edit: write motion prompts and frame counts that suit your image-to-video engine, check the clips it produces, re-roll only the bad ones and conform frame rates. The image-to-video node itself is your choice (local Wan, local MiniMax H3, LTX, or an API node such as Kling, Seedance or Hailuo).
+
+```
+keyframes ─► Shot Motion Prompts ─► motion_prompts / frame_counts ─► (image-to-video engine) ─► clips
+                                                                                                │
+             ┌─────────────────────── reroll_prompts / reroll_seeds ◄── Shot Video QA ◄──────────┤
+             ▼                                                              │ verdicts_json     │
+   (same engine, failed shots only) ─► rerolled ─► Clip Reroll Merge ◄──────┴───────────────────┘
+                                                        │
+                                                        ▼
+                                   Clip Resample FPS (16 → 24) ─► Ad Timeline ─► ...
+```
+
+| Node | What it does | Outputs |
+|---|---|---|
+| **Shot Motion Prompts** | One image-to-video prompt per shot: the shot's action, a pacing line for `motion_strength` (subtle / natural / dynamic) and the `camera` field mapped to a camera vocabulary ("push-in" → "slow dolly push-in", "pan left", "orbit", "crane", "handheld"...). Frame counts snap to the engine's grid: Wan 2.1/2.2 4k+1 at 16 fps, MiniMax H3 17k+5 at 24 fps, LTX 8k+1 at 24 fps. API engines get the nearest allowed duration: Kling 5/10 s, Seedance 4–12 s, Hailuo 6/10 s. | `motion_prompts` (list), `frame_counts` (list), `seconds` (list), `negative_prompt`, `fps` |
+| **Shot Video QA** | Offline metrics per clip (numpy): frozen clip, flicker (luma pumping), sudden jumps / morphs (frame-difference spikes against the clip's median), drift of the last frame from the approved keyframe, and a melting-region heat map (per-cell temporal instability). Optionally sends `frames_per_clip` sampled frames to Gemini (`gemini-flash-lite-latest`, falling back to `gemini-flash-latest`) for a JSON review with issues and a fixed motion prompt. Score = the lower of offline and LLM; below `pass_score` (or frozen) → reroll with a new seed. | `report`, `contact_sheet`, `verdicts_json`, `reroll_shots`, `reroll_prompts` (list), `reroll_seeds` (list) |
+| **Clip Reroll Merge** | Swaps the rerolled clips into the failed shots' places. Its `rerolled` input is lazy: when every shot passed, the reroll branch is never executed. | `clips` (list), `report` |
+| **Clips From Batch** | Splits one long batch into per-shot clips by frame counts (text, the `frame_counts` list, or N equal parts). | `clips` (list) |
+| **Clip Last Frame** | Last frame of every clip, to start the next shot where the previous one ended. | `last_frames` (list) |
+| **Clip Resample FPS** | Changes frame rate and keeps the duration (frame blending or nearest), e.g. 16 fps Wan clips into a 24 fps timeline: 81 frames → 122. | `clips` (list), `fps` |
+
+Tips:
+- To reroll, drive a second copy of your video node with `reroll_prompts` and `reroll_seeds` (and the matching keyframes) and connect its output to Clip Reroll Merge `rerolled`; the lists contain only the failed shots, in order.
+- The offline checks are deliberately simple; use the `contact_sheet` (red heat = unstable regions) to judge borderline shots, and turn on `use_llm` for faces, hands and logos. The LLM review needs `GEMINI_API_KEY` (or `GOOGLE_API_KEY`).
+
+## Voiceover, beat sync and social cuts
+
+| Node | Category | What it does | Outputs |
+|---|---|---|---|
+| **Ad Voiceover (TTS)** | Audio | Text-to-speech with Gemini (`gemini-2.5-flash-preview-tts`, voice Kore), OpenAI (`gpt-4o-mini-tts`, voice coral) or ElevenLabs (`eleven_multilingual_v2`). `style_prompt` steers the read ("warm, unhurried Italian-accented English"). Text can be `shot_number \| line` lines, one line per shot (Ad Script From Shots) or plain text. With `timing_json`, each line is synthesised separately and placed at its shot's start + 0.3 s. Decoded with the standard library (no ffmpeg); output 48 kHz stereo. | `voiceover`, `vo_timing_json` |
+| **Ad Voice Fit** | Audio | Lines that run past the end of their shot are sped up (WSOLA, pitch kept) by at most `max_stretch` (12%); anything still too long is reported. | `voiceover`, `report`, `vo_timing_json` |
+| **Ad Beat Sync** | Audio | Tempo and beats from the music (onset envelope + autocorrelation, numpy only), then shot durations whose cuts land on the beat, as close as possible to the shot list's durations and never shorter than `min_shot_s`. `music_offset_s` / `music_aligned` put the first downbeat on frame 0. | `durations`, `bpm`, `beat_times_json`, `music_offset_s`, `music_aligned`, `total_seconds` |
+| **Ad Reframe** | Ad | 9:16, 1:1 or 4:5 versions: the crop follows the subject's centre of mass from a `subject_mask` (e.g. SAM video tracking), or a centre-weighted edge-energy guess without one, smoothed over time and never outside the frame. | `frames` |
+| **Ad Cutdown** | Ad | 6 s / 15 s cutdowns from the full spot: `keep` = shot numbers or `auto` (first shot, best-scored middle shots from `verdicts_json`, last shot), trimmed to fit. The end card is always kept. | `frames`, `timing_json`, `frame_count`, `total_seconds`, `report` |
+
+The full chain:
+
+```
+keyframes ─► Shot Motion Prompts ─► (image-to-video engine) ─► Shot Video QA ─► Clip Reroll Merge ─► Clip Resample FPS
+   ─► Ad Timeline ─► Ad Supers ─► Ad End Card ─► CreateVideo ─► SaveVideo
+                                                    ▲ audio
+   Ad Voiceover ─► Ad Voice Fit ─► Ad Audio Mix ────┘
+                                       ▲ music_aligned
+   music ─► Ad Beat Sync ── durations ─► Ad Timeline (and Shot Motion Prompts)
+
+   Ad End Card frames ─► Ad Reframe (9:16) / Ad Cutdown (6 s) ─► CreateVideo ─► SaveVideo
+```
+
+Tips:
+- Run Ad Beat Sync first and connect its `durations` to both Shot Motion Prompts and Ad Timeline, so clips are generated at the right length and every cut lands on a beat. Feed `music_aligned` (not the original music) to Ad Audio Mix.
+- When Ad Voiceover places lines on the timeline, set Ad Audio Mix `vo_start_s` to 0.
+- For a 9:16 cutdown, run Ad Cutdown first, then Ad Reframe, and connect Ad Cutdown `total_seconds` to Ad Audio Mix.
+- Keys: `GEMINI_API_KEY` / `GOOGLE_API_KEY`, `OPENAI_API_KEY`, `ELEVENLABS_API_KEY`. A key typed into an `api_key` field is saved inside the workflow file.
+
+Every input, output and tooltip of these nodes is listed in [docs/NODES.md](docs/NODES.md).
+
+Tests (numpy, torch and Pillow only; all HTTP is mocked, no GPU, no network):
+```
+cd tests
+python -m unittest
+```
+
 ## License
 
 MIT
