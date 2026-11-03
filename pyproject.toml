@@ -1,14 +1,23 @@
 [project]
 name = "comfyui-shotplanner"
-description = "Turn a brief or script into a shot list with image and video prompts per shot (Claude, GPT, Gemini or offline)."
-version = "1.0.0"
+description = "From brief to finished ad inside ComfyUI: shot list and prompts (Claude, GPT, Gemini or offline), animatic, AI art-director critic with targeted fixes, image-to-video engine switch with clip QA, timeline, supers, end card, voiceover, beat sync, social cutdowns, treatment PDF and pitch deck."
+version = "1.1.0"
 license = { file = "LICENSE" }
+readme = "README.md"
+requires-python = ">=3.10"
+# Nothing beyond what ComfyUI already installs (torch, numpy, Pillow). LLM calls use urllib.
 dependencies = []
+classifiers = [
+    "Operating System :: OS Independent",
+]
 
 [project.urls]
 Repository = "https://github.com/Somarawad/ComfyUI-ShotPlanner"
+Documentation = "https://github.com/Somarawad/ComfyUI-ShotPlanner/blob/main/docs/NODES.md"
+"Bug Tracker" = "https://github.com/Somarawad/ComfyUI-ShotPlanner/issues"
+Changelog = "https://github.com/Somarawad/ComfyUI-ShotPlanner/blob/main/CHANGELOG.md"
 
 [tool.comfy]
-PublisherId = ""
+PublisherId = "somarawad"
 DisplayName = "Shot Planner"
-Icon = ""
+Icon = "https://raw.githubusercontent.com/Somarawad/ComfyUI-ShotPlanner/main/docs/img/icon.png"

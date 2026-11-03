@@ -1,0 +1,7 @@
+# Files that stay on GitHub but are not uploaded to the Comfy Registry (comfy node pack / publish).
+# Same syntax as .gitignore.
+.github/
+tests/
+tools/
+docs/img/
+examples/treatment_sample/

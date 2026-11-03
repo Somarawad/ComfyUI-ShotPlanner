@@ -1,0 +1,44 @@
+name: Publish to Comfy Registry
+
+# Manual only: nothing is published on push, tag or merge. Run it from
+# Actions -> "Publish to Comfy Registry" -> Run workflow, after the steps in docs/PUBLISHING.md.
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_version:
+        description: "Version you are publishing (must equal [project] version in pyproject.toml)"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  publish-node:
+    name: Publish custom node to the registry
+    runs-on: ubuntu-latest
+    if: github.repository == 'Somarawad/ComfyUI-ShotPlanner'
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Check the token and the version
+        env:
+          REGISTRY_ACCESS_TOKEN: ${{ secrets.REGISTRY_ACCESS_TOKEN }}
+          CONFIRM_VERSION: ${{ github.event.inputs.confirm_version }}
+        run: |
+          if [ -z "$REGISTRY_ACCESS_TOKEN" ]; then
+            echo "::error::The REGISTRY_ACCESS_TOKEN secret is not set. See docs/PUBLISHING.md."
+            exit 1
+          fi
+          VERSION=$(python3 -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
+          if [ "$VERSION" != "$CONFIRM_VERSION" ]; then
+            echo "::error::pyproject.toml says $VERSION but you typed $CONFIRM_VERSION."
+            exit 1
+          fi
+          echo "Publishing comfyui-shotplanner $VERSION"
+
+      - name: Publish custom node
+        uses: Comfy-Org/publish-node-action@1.0.1
+        with:
+          personal_access_token: ${{ secrets.REGISTRY_ACCESS_TOKEN }}
+          skip_checkout: "true"
