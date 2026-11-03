@@ -1,0 +1,1049 @@
+{
+ "sp": {
+  "class_type": "ShotPlanner",
+  "inputs": {
+   "brief": "15-second spec ad for NOVARA, a Milan espresso brand. Early morning in a small Milan cafe. The barista pulls an espresso shot. She hands a white paper cup printed with the black NOVARA logo to a young customer in a camel coat. The customer takes a first sip and smiles, then walks out into the sunny city street holding the cup.",
+   "provider": "gemini",
+   "model": "",
+   "num_shots": 4,
+   "style": "cinematic commercial, photoreal, warm morning light, 35mm",
+   "aspect_ratio": "16:9",
+   "shot_seconds": 4,
+   "api_key": "",
+   "extra_instructions": "The cup is always a white paper takeaway cup with the word NOVARA printed in black capitals. Keep the barista (dark hair in a bun, black apron) and the customer (young woman, camel coat) identical in every shot."
+  }
+ },
+ "ck": {
+  "class_type": "CheckpointLoaderSimple",
+  "inputs": {
+   "ckpt_name": "juggernautXL_juggXIByRundiffusion.safetensors"
+  }
+ },
+ "neg": {
+  "class_type": "CLIPTextEncode",
+  "inputs": {
+   "clip": [
+    "ck",
+    1
+   ],
+   "text": "blurry, deformed hands, extra fingers, watermark, lowres, text artifacts"
+  }
+ },
+ "upm": {
+  "class_type": "UpscaleModelLoader",
+  "inputs": {
+   "model_name": "4x-UltraSharp.pth"
+  }
+ },
+ "sam": {
+  "class_type": "CheckpointLoaderSimple",
+  "inputs": {
+   "ckpt_name": "sam3.1_multiplex_fp16.safetensors"
+  }
+ },
+ "t1": {
+  "class_type": "CLIPTextEncode",
+  "inputs": {
+   "clip": [
+    "sam",
+    1
+   ],
+   "text": "logo"
+  }
+ },
+ "t2": {
+  "class_type": "CLIPTextEncode",
+  "inputs": {
+   "clip": [
+    "sam",
+    1
+   ],
+   "text": "text"
+  }
+ },
+ "refT": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "novara_logo.png"
+  }
+ },
+ "refR": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "novara_logo_white.png"
+  }
+ },
+ "gg": {
+  "class_type": "LoaderGGUF",
+  "inputs": {
+   "gguf_name": "gguf\\Qwen-Image-Edit-2509-Q3_K_S.gguf"
+  }
+ },
+ "lo": {
+  "class_type": "LoraLoaderModelOnly",
+  "inputs": {
+   "model": [
+    "gg",
+    0
+   ],
+   "lora_name": "qwen-image-edit-lightning\\Qwen-Image-Edit-2509-Lightning-4steps-V1.0-bf16.safetensors",
+   "strength_model": 1
+  }
+ },
+ "ms": {
+  "class_type": "ModelSamplingAuraFlow",
+  "inputs": {
+   "model": [
+    "lo",
+    0
+   ],
+   "shift": 3
+  }
+ },
+ "cn": {
+  "class_type": "CFGNorm",
+  "inputs": {
+   "model": [
+    "ms",
+    0
+   ],
+   "strength": 1
+  }
+ },
+ "clip": {
+  "class_type": "CLIPLoader",
+  "inputs": {
+   "clip_name": "qwen\\qwen_2.5_vl_7b_fp8_scaled.safetensors",
+   "type": "qwen_image"
+  }
+ },
+ "vae": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "qwen_image_vae.safetensors"
+  }
+ },
+ "qn": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "clip": [
+    "clip",
+    0
+   ],
+   "vae": [
+    "vae",
+    0
+   ],
+   "prompt": ""
+  }
+ },
+ "pos": {
+  "class_type": "CLIPTextEncode",
+  "inputs": {
+   "clip": [
+    "ck",
+    1
+   ],
+   "text": [
+    "sel1",
+    0
+   ]
+  }
+ },
+ "lat": {
+  "class_type": "EmptyLatentImage",
+  "inputs": {
+   "width": 1344,
+   "height": 768,
+   "batch_size": 1
+  }
+ },
+ "ks": {
+  "class_type": "KSampler",
+  "inputs": {
+   "model": [
+    "ck",
+    0
+   ],
+   "positive": [
+    "pos",
+    0
+   ],
+   "negative": [
+    "neg",
+    0
+   ],
+   "latent_image": [
+    "lat",
+    0
+   ],
+   "seed": 101,
+   "steps": 25,
+   "cfg": 5,
+   "sampler_name": "dpmpp_2m",
+   "scheduler": "karras",
+   "denoise": 1
+  }
+ },
+ "vd": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "ks",
+    0
+   ],
+   "vae": [
+    "ck",
+    2
+   ]
+  }
+ },
+ "jn": {
+  "class_type": "ShotJoin",
+  "inputs": {
+   "first": [
+    "vd",
+    0
+   ],
+   "rest": [
+    "bb2",
+    0
+   ]
+  }
+ },
+ "cr1": {
+  "class_type": "ShotCritic",
+  "inputs": {
+   "images": [
+    "jn",
+    0
+   ],
+   "provider": "gemini",
+   "model": "",
+   "pass_score": 7,
+   "input_type": "images (one per shot)",
+   "checks": "Anatomy: hands, fingers, limbs, eyes, faces (no extra or fused fingers, no warped faces)\nText and logos: spelled exactly as required, clean shapes, no gibberish lettering\nMatches the shot: subject, action, framing and camera described in the shot's prompt\nContinuity: same characters, wardrobe, product and location look across shots\nArtifacts: melted objects, duplicated people, broken perspective, obvious AI smears",
+   "brand_rules": "Any cup must be a white paper cup with NOVARA printed in black capitals, spelled exactly. Same barista (dark hair bun, black apron) and same customer (young woman, camel coat) in every shot.",
+   "candidates": 1,
+   "reviews": 3,
+   "seed": 1,
+   "shot_list_json": [
+    "sp",
+    0
+   ]
+  }
+ },
+ "sel": {
+  "class_type": "ShotSelect",
+  "inputs": {
+   "images": [
+    "jn",
+    0
+   ],
+   "verdicts_json": [
+    "cr1",
+    2
+   ],
+   "route": "detail"
+  }
+ },
+ "up": {
+  "class_type": "ImageUpscaleWithModel",
+  "inputs": {
+   "upscale_model": [
+    "upm",
+    0
+   ],
+   "image": [
+    "sel",
+    0
+   ]
+  }
+ },
+ "up2": {
+  "class_type": "ImageScaleBy",
+  "inputs": {
+   "image": [
+    "up",
+    0
+   ],
+   "upscale_method": "lanczos",
+   "scale_by": 0.375
+  }
+ },
+ "d1": {
+  "class_type": "SAM3_Detect",
+  "inputs": {
+   "model": [
+    "sam",
+    0
+   ],
+   "image": [
+    "up2",
+    0
+   ],
+   "threshold": 0.35,
+   "refine_iterations": 2,
+   "individual_masks": false,
+   "conditioning": [
+    "t1",
+    0
+   ]
+  }
+ },
+ "d2": {
+  "class_type": "SAM3_Detect",
+  "inputs": {
+   "model": [
+    "sam",
+    0
+   ],
+   "image": [
+    "up2",
+    0
+   ],
+   "threshold": 0.35,
+   "refine_iterations": 2,
+   "individual_masks": false,
+   "conditioning": [
+    "t2",
+    0
+   ]
+  }
+ },
+ "det": {
+  "class_type": "DetailDetect",
+  "inputs": {
+   "image": [
+    "up2",
+    0
+   ],
+   "mode": "sam3",
+   "target": "",
+   "max_items": 3,
+   "manual_boxes": "",
+   "bboxes": [
+    "d1",
+    1
+   ],
+   "bboxes_2": [
+    "d2",
+    1
+   ],
+   "merge_touching": true
+  }
+ },
+ "crop": {
+  "class_type": "DetailCrop",
+  "inputs": {
+   "image": [
+    "up2",
+    0
+   ],
+   "boxes_json": [
+    "det",
+    0
+   ],
+   "which": 0,
+   "context": 1.4,
+   "size": 1024
+  }
+ },
+ "er": {
+  "class_type": "DetailPrepareLogo",
+  "inputs": {
+   "crop": [
+    "crop",
+    0
+   ],
+   "crop_info": [
+    "crop",
+    1
+   ],
+   "reference": [
+    "refT",
+    0
+   ],
+   "reference_mask": [
+    "refT",
+    1
+   ],
+   "fit": "contain",
+   "scale": 1,
+   "opacity": 0,
+   "erase_original": true,
+   "erase_grow": 0.35
+  }
+ },
+ "gd": {
+  "class_type": "DetailPrepareLogo",
+  "inputs": {
+   "crop": [
+    "crop",
+    0
+   ],
+   "crop_info": [
+    "crop",
+    1
+   ],
+   "reference": [
+    "refT",
+    0
+   ],
+   "reference_mask": [
+    "refT",
+    1
+   ],
+   "fit": "contain",
+   "scale": 1,
+   "opacity": 0.6,
+   "erase_original": true,
+   "erase_grow": 0.35
+  }
+ },
+ "q": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "clip": [
+    "clip",
+    0
+   ],
+   "vae": [
+    "vae",
+    0
+   ],
+   "image1": [
+    "er",
+    0
+   ],
+   "image2": [
+    "refR",
+    0
+   ],
+   "prompt": "Print the exact logo from Picture 2 on the blank surface in the center of Picture 1 (a paper cup, apron, window or sign): the word NOVARA with MILANO underneath, same font and proportions as Picture 2, crisp black ink, following the surface's curve, perspective and lighting. Keep everything else unchanged."
+  }
+ },
+ "enc": {
+  "class_type": "VAEEncode",
+  "inputs": {
+   "pixels": [
+    "gd",
+    0
+   ],
+   "vae": [
+    "vae",
+    0
+   ]
+  }
+ },
+ "gm": {
+  "class_type": "GrowMask",
+  "inputs": {
+   "mask": [
+    "crop",
+    2
+   ],
+   "expand": 48,
+   "tapered_corners": true
+  }
+ },
+ "nm": {
+  "class_type": "SetLatentNoiseMask",
+  "inputs": {
+   "samples": [
+    "enc",
+    0
+   ],
+   "mask": [
+    "gm",
+    0
+   ]
+  }
+ },
+ "qk": {
+  "class_type": "KSampler",
+  "inputs": {
+   "model": [
+    "cn",
+    0
+   ],
+   "positive": [
+    "q",
+    0
+   ],
+   "negative": [
+    "qn",
+    0
+   ],
+   "latent_image": [
+    "nm",
+    0
+   ],
+   "seed": 7,
+   "steps": 4,
+   "cfg": 1,
+   "sampler_name": "euler",
+   "scheduler": "simple",
+   "denoise": 0.75
+  }
+ },
+ "qd": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "qk",
+    0
+   ],
+   "vae": [
+    "vae",
+    0
+   ]
+  }
+ },
+ "pb": {
+  "class_type": "DetailPasteBack",
+  "inputs": {
+   "image": [
+    "up2",
+    0
+   ],
+   "fixed_crops": [
+    "qd",
+    0
+   ],
+   "crop_info": [
+    "crop",
+    1
+   ],
+   "blend_area": "box",
+   "expand": 0.3,
+   "feather": 16,
+   "blend_mask": [
+    "gm",
+    0
+   ],
+   "match_color": false
+  }
+ },
+ "mgD": {
+  "class_type": "ShotRerollMerge",
+  "inputs": {
+   "images": [
+    "jn",
+    0
+   ],
+   "verdicts_json": [
+    "cr1",
+    2
+   ],
+   "route": "detail",
+   "rerolled": [
+    "pb",
+    0
+   ]
+  }
+ },
+ "cr2": {
+  "class_type": "ShotCritic",
+  "inputs": {
+   "images": [
+    "mgD",
+    0
+   ],
+   "provider": "gemini",
+   "model": "",
+   "pass_score": 7,
+   "input_type": "images (one per shot)",
+   "checks": "Anatomy: hands, fingers, limbs, eyes, faces (no extra or fused fingers, no warped faces)\nText and logos: spelled exactly as required, clean shapes, no gibberish lettering\nMatches the shot: subject, action, framing and camera described in the shot's prompt\nContinuity: same characters, wardrobe, product and location look across shots\nArtifacts: melted objects, duplicated people, broken perspective, obvious AI smears",
+   "brand_rules": "Any cup must be a white paper cup with NOVARA printed in black capitals, spelled exactly. Same barista (dark hair bun, black apron) and same customer (young woman, camel coat) in every shot.",
+   "candidates": 1,
+   "reviews": 3,
+   "seed": 1,
+   "shot_list_json": [
+    "sp",
+    0
+   ]
+  }
+ },
+ "kb": {
+  "class_type": "ShotKeepBetter",
+  "inputs": {
+   "before": [
+    "jn",
+    0
+   ],
+   "before_verdicts_json": [
+    "cr1",
+    2
+   ],
+   "after": [
+    "mgD",
+    0
+   ],
+   "after_verdicts_json": [
+    "cr2",
+    2
+   ]
+  }
+ },
+ "an": {
+  "class_type": "ShotAnimatic",
+  "inputs": {
+   "keyframes": [
+    "kb",
+    0
+   ],
+   "fps": 12,
+   "width": 960,
+   "aspect_ratio": "from keyframe",
+   "motion_strength": 0.12,
+   "crossfade_frames": 4,
+   "default_seconds": 3,
+   "shot_list_json": [
+    "sp",
+    0
+   ]
+  }
+ },
+ "cv": {
+  "class_type": "CreateVideo",
+  "inputs": {
+   "images": [
+    "an",
+    0
+   ],
+   "fps": 12
+  }
+ },
+ "sv": {
+  "class_type": "SaveVideo",
+  "inputs": {
+   "video": [
+    "cv",
+    0
+   ],
+   "filename_prefix": "Pipeline8/animatic",
+   "format": "auto",
+   "codec": "auto"
+  }
+ },
+ "s0": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "images": [
+    "jn",
+    0
+   ],
+   "filename_prefix": "Pipeline8/generated"
+  }
+ },
+ "s1": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "images": [
+    "cr1",
+    1
+   ],
+   "filename_prefix": "Pipeline8/sheet1"
+  }
+ },
+ "s2": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "images": [
+    "cr2",
+    1
+   ],
+   "filename_prefix": "Pipeline8/sheet2"
+  }
+ },
+ "s3": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "images": [
+    "kb",
+    0
+   ],
+   "filename_prefix": "Pipeline8/final"
+  }
+ },
+ "p1": {
+  "class_type": "PreviewAny",
+  "inputs": {
+   "source": [
+    "cr1",
+    0
+   ]
+  }
+ },
+ "p2": {
+  "class_type": "PreviewAny",
+  "inputs": {
+   "source": [
+    "sel",
+    2
+   ]
+  }
+ },
+ "p3": {
+  "class_type": "PreviewAny",
+  "inputs": {
+   "source": [
+    "cr2",
+    0
+   ]
+  }
+ },
+ "p4": {
+  "class_type": "PreviewAny",
+  "inputs": {
+   "source": [
+    "kb",
+    2
+   ]
+  }
+ },
+ "p5": {
+  "class_type": "PreviewAny",
+  "inputs": {
+   "source": [
+    "sp",
+    4
+   ]
+  }
+ },
+ "nl": {
+  "class_type": "LoraLoaderModelOnly",
+  "inputs": {
+   "model": [
+    "cn",
+    0
+   ],
+   "lora_name": "next-scene_lora-v2-3000.safetensors",
+   "strength_model": 0.8
+  }
+ },
+ "elat": {
+  "class_type": "EmptyLatentImage",
+  "inputs": {
+   "width": 1344,
+   "height": 768,
+   "batch_size": 1
+  }
+ },
+ "sel2": {
+  "class_type": "ShotSelector",
+  "inputs": {
+   "shot_list_json": [
+    "sp",
+    0
+   ],
+   "shot_number": 2
+  }
+ },
+ "ca2": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "string_a": "Next Scene:",
+   "string_b": [
+    "sel2",
+    0
+   ],
+   "delimiter": " "
+  }
+ },
+ "cb2": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "string_a": [
+    "ca2",
+    0
+   ],
+   "string_b": "Keep the same people (same faces, hair and clothing), the same white paper cups printed with NOVARA in black capitals, and the same warm cinematic photographic style.",
+   "delimiter": " "
+  }
+ },
+ "eq2": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "clip": [
+    "clip",
+    0
+   ],
+   "vae": [
+    "vae",
+    0
+   ],
+   "image1": [
+    "vd",
+    0
+   ],
+   "prompt": [
+    "cb2",
+    0
+   ]
+  }
+ },
+ "ek2": {
+  "class_type": "KSampler",
+  "inputs": {
+   "model": [
+    "nl",
+    0
+   ],
+   "positive": [
+    "eq2",
+    0
+   ],
+   "negative": [
+    "qn",
+    0
+   ],
+   "latent_image": [
+    "elat",
+    0
+   ],
+   "seed": 12,
+   "steps": 4,
+   "cfg": 1,
+   "sampler_name": "euler",
+   "scheduler": "simple",
+   "denoise": 1
+  }
+ },
+ "ev2": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "ek2",
+    0
+   ],
+   "vae": [
+    "vae",
+    0
+   ]
+  }
+ },
+ "sel3": {
+  "class_type": "ShotSelector",
+  "inputs": {
+   "shot_list_json": [
+    "sp",
+    0
+   ],
+   "shot_number": 3
+  }
+ },
+ "ca3": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "string_a": "Next Scene:",
+   "string_b": [
+    "sel3",
+    0
+   ],
+   "delimiter": " "
+  }
+ },
+ "cb3": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "string_a": [
+    "ca3",
+    0
+   ],
+   "string_b": "Keep the same people (same faces, hair and clothing), the same white paper cups printed with NOVARA in black capitals, and the same warm cinematic photographic style.",
+   "delimiter": " "
+  }
+ },
+ "eq3": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "clip": [
+    "clip",
+    0
+   ],
+   "vae": [
+    "vae",
+    0
+   ],
+   "image1": [
+    "ev2",
+    0
+   ],
+   "prompt": [
+    "cb3",
+    0
+   ]
+  }
+ },
+ "ek3": {
+  "class_type": "KSampler",
+  "inputs": {
+   "model": [
+    "nl",
+    0
+   ],
+   "positive": [
+    "eq3",
+    0
+   ],
+   "negative": [
+    "qn",
+    0
+   ],
+   "latent_image": [
+    "elat",
+    0
+   ],
+   "seed": 13,
+   "steps": 4,
+   "cfg": 1,
+   "sampler_name": "euler",
+   "scheduler": "simple",
+   "denoise": 1
+  }
+ },
+ "ev3": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "ek3",
+    0
+   ],
+   "vae": [
+    "vae",
+    0
+   ]
+  }
+ },
+ "sel4": {
+  "class_type": "ShotSelector",
+  "inputs": {
+   "shot_list_json": [
+    "sp",
+    0
+   ],
+   "shot_number": 4
+  }
+ },
+ "ca4": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "string_a": "Next Scene:",
+   "string_b": [
+    "sel4",
+    0
+   ],
+   "delimiter": " "
+  }
+ },
+ "cb4": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "string_a": [
+    "ca4",
+    0
+   ],
+   "string_b": "Keep the same people (same faces, hair and clothing), the same white paper cups printed with NOVARA in black capitals, and the same warm cinematic photographic style.",
+   "delimiter": " "
+  }
+ },
+ "eq4": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "clip": [
+    "clip",
+    0
+   ],
+   "vae": [
+    "vae",
+    0
+   ],
+   "image1": [
+    "ev3",
+    0
+   ],
+   "prompt": [
+    "cb4",
+    0
+   ]
+  }
+ },
+ "ek4": {
+  "class_type": "KSampler",
+  "inputs": {
+   "model": [
+    "nl",
+    0
+   ],
+   "positive": [
+    "eq4",
+    0
+   ],
+   "negative": [
+    "qn",
+    0
+   ],
+   "latent_image": [
+    "elat",
+    0
+   ],
+   "seed": 14,
+   "steps": 4,
+   "cfg": 1,
+   "sampler_name": "euler",
+   "scheduler": "simple",
+   "denoise": 1
+  }
+ },
+ "ev4": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "ek4",
+    0
+   ],
+   "vae": [
+    "vae",
+    0
+   ]
+  }
+ },
+ "bb1": {
+  "class_type": "ImageBatch",
+  "inputs": {
+   "image1": [
+    "ev2",
+    0
+   ],
+   "image2": [
+    "ev3",
+    0
+   ]
+  }
+ },
+ "bb2": {
+  "class_type": "ImageBatch",
+  "inputs": {
+   "image1": [
+    "bb1",
+    0
+   ],
+   "image2": [
+    "ev4",
+    0
+   ]
+  }
+ },
+ "sel1": {
+  "class_type": "ShotSelector",
+  "inputs": {
+   "shot_list_json": [
+    "sp",
+    0
+   ],
+   "shot_number": 1
+  }
+ }
+}

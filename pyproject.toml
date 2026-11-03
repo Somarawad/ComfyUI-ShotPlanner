@@ -6,7 +6,7 @@ license = { file = "LICENSE" }
 dependencies = []
 
 [project.urls]
-Repository = "https://github.com/<your-username>/ComfyUI-ShotPlanner"
+Repository = "https://github.com/Somarawad/ComfyUI-ShotPlanner"
 
 [tool.comfy]
 PublisherId = ""

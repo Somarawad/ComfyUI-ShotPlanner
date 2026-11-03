@@ -31,8 +31,8 @@ THRESHOLDS = {
     "flicker": 0.012,     # median |2nd difference| of mean luma above this = flicker
     "jump": 5.0,          # largest frame diff / median frame diff above this = jump / morph
     "jump_abs": 0.04,     # ...and the jump itself must be at least this big
-    "drift": 0.45,        # keyframe vs last frame (0 = same, ~0.6 = unrelated image)
-    "melt": 3.5,          # hottest cell / median cell instability above this = melting region
+    "drift": 0.62,        # keyframe vs last frame (0 = same, ~0.6+ = unrelated image); camera moves and walking reach ~0.5
+    "melt": 4.0,          # hottest cell / median cell instability above this = melting region
     "melt_abs": 0.02,     # ...and the hottest cell must be at least this unstable
 }
 PENALTIES = {"frozen": 7, "flicker": 4, "jump": 4, "drift": 4, "melt": 4}

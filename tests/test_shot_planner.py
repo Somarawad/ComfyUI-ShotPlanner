@@ -93,6 +93,32 @@ class Tests(unittest.TestCase):
         # explicit api_key wins over env
         self.assertEqual(seen["headers"]["authorization"], "Bearer k-123")
 
+    def test_retry_on_503(self):
+        calls = {"n": 0}
+
+        def flaky(req, timeout=0):
+            calls["n"] += 1
+            if calls["n"] == 1:
+                import io, urllib.error
+                raise urllib.error.HTTPError(req.full_url, 503, "busy", {}, io.BytesIO(b'{"error":"busy"}'))
+            return FakeResp({"candidates": [{"content": {"parts": [{"text": json.dumps(REPLY)}]}}]})
+
+        with mock.patch("urllib.request.urlopen", flaky), mock.patch("time.sleep"):
+            p = sp.plan_shots("A brief.", provider="gemini", api_key="k", num_shots=2)
+        self.assertEqual(calls["n"], 2)
+        self.assertEqual(len(p["shots"]), 2)
+
+    def test_no_retry_on_401(self):
+        import io, urllib.error
+
+        def bad(req, timeout=0):
+            raise urllib.error.HTTPError(req.full_url, 401, "no", {}, io.BytesIO(b"bad key"))
+
+        with mock.patch("urllib.request.urlopen", bad), mock.patch("time.sleep") as sl:
+            with self.assertRaises(sp.ShotPlannerError):
+                sp.plan_shots("A brief.", provider="gemini", api_key="k")
+        sl.assert_not_called()
+
     def test_empty_brief(self):
         with self.assertRaises(sp.ShotPlannerError):
             sp.plan_shots("   ")
