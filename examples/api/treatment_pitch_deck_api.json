@@ -1,0 +1,293 @@
+{
+  "i1": {
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Keyframe 1"
+    },
+    "inputs": {
+      "image": "NOVARA/final_00001_.png [output]"
+    }
+  },
+  "i2": {
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Keyframe 2"
+    },
+    "inputs": {
+      "image": "NOVARA/final_00002_.png [output]"
+    }
+  },
+  "i3": {
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Keyframe 3"
+    },
+    "inputs": {
+      "image": "NOVARA/final_00003_.png [output]"
+    }
+  },
+  "i4": {
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Keyframe 4"
+    },
+    "inputs": {
+      "image": "NOVARA/final_00004_.png [output]"
+    }
+  },
+  "b1": {
+    "class_type": "ImageBatch",
+    "inputs": {
+      "image1": [
+        "i2",
+        0
+      ],
+      "image2": [
+        "i3",
+        0
+      ]
+    }
+  },
+  "b2": {
+    "class_type": "ImageBatch",
+    "inputs": {
+      "image1": [
+        "b1",
+        0
+      ],
+      "image2": [
+        "i4",
+        0
+      ]
+    }
+  },
+  "jn": {
+    "class_type": "ShotJoin",
+    "inputs": {
+      "first": [
+        "i1",
+        0
+      ],
+      "rest": [
+        "b2",
+        0
+      ]
+    }
+  },
+  "lw": {
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Logo (transparent PNG)"
+    },
+    "inputs": {
+      "image": "novara_logo_white_transparent.png"
+    }
+  },
+  "sl": {
+    "class_type": "ShotListEditor",
+    "_meta": {
+      "title": "Shot list (approved)"
+    },
+    "inputs": {
+      "shot_list_json": "{\n  \"title\": \"NOVARA - Every morning, Milano\",\n  \"style\": \"cinematic commercial, photoreal, warm morning light, 35mm\",\n  \"shots\": [\n    {\n      \"id\": 1,\n      \"description\": \"The barista pulls an espresso shot; thick golden crema rises in the cup.\",\n      \"camera\": \"slow dolly push-in\",\n      \"duration\": 3,\n      \"image_prompt\": \"Close-up of an espresso machine spout pouring golden espresso into a small cup, warm morning window light, Milan cafe, 35mm, photoreal\",\n      \"video_prompt\": \"Thick golden espresso pours steadily, crema swirls and rises, steam curls, slow dolly push-in\"\n    },\n    {\n      \"id\": 2,\n      \"description\": \"She hands the white NOVARA paper cup across the counter to a young woman in a camel coat.\",\n      \"camera\": \"gentle handheld\",\n      \"duration\": 3.5,\n      \"image_prompt\": \"A barista with dark hair in a bun and a black apron hands a white paper cup printed NOVARA to a young woman in a camel coat across a cafe counter, warm light\",\n      \"video_prompt\": \"The barista hands the cup across the counter, the woman takes it with both hands and smiles, gentle handheld\"\n    },\n    {\n      \"id\": 3,\n      \"description\": \"The customer takes the first sip at the window and smiles.\",\n      \"camera\": \"subtle slow push-in\",\n      \"duration\": 3,\n      \"image_prompt\": \"A young woman with brown wavy hair in a camel coat sips from a white NOVARA paper cup by a cafe window, soft morning light\",\n      \"video_prompt\": \"She slowly sips, lowers the cup and smiles warmly, subtle slow push-in\"\n    },\n    {\n      \"id\": 4,\n      \"description\": \"She walks out into the sunny Milan street holding the cup.\",\n      \"camera\": \"smooth backward tracking shot\",\n      \"duration\": 3.5,\n      \"image_prompt\": \"A young woman in a camel coat walks along a sunny Milan street holding a white NOVARA paper cup, people in the background\",\n      \"video_prompt\": \"She walks toward the camera and takes a sip, smooth backward tracking shot\"\n    }\n  ]\n}"
+    }
+  },
+  "pal": {
+    "class_type": "PaletteFromShots",
+    "inputs": {
+      "keyframes": [
+        "jn",
+        0
+      ],
+      "colors": 6,
+      "accent_hex": ""
+    }
+  },
+  "scr": {
+    "class_type": "AdScriptFromShots",
+    "inputs": {
+      "shot_list_json": [
+        "sl",
+        0
+      ],
+      "brand": "NOVARA",
+      "tagline": "Every morning, Milano.",
+      "words_per_second": 2.5,
+      "supers_mode": "first and last"
+    }
+  },
+  "tb": {
+    "class_type": "TreatmentBuilder",
+    "inputs": {
+      "keyframes": [
+        "jn",
+        0
+      ],
+      "shot_list_json": [
+        "sl",
+        0
+      ],
+      "brand": "NOVARA",
+      "client_line": "Spec commercial · 15s · 16:9",
+      "director": "Somar Awad",
+      "logline": "One minute of light: a Milan morning, from the first pour to the first sip on the street.",
+      "tone_words": "warm, unhurried, Milanese morning",
+      "template": "editorial dark",
+      "page_size": "A4",
+      "filename_prefix": "treatment/novara_treatment",
+      "supers_text": [
+        "scr",
+        1
+      ],
+      "voiceover_text": [
+        "scr",
+        0
+      ],
+      "logo": [
+        "lw",
+        0
+      ],
+      "logo_mask": [
+        "lw",
+        1
+      ],
+      "invert_mask": false,
+      "accent_hex": [
+        "pal",
+        2
+      ]
+    }
+  },
+  "pd": {
+    "class_type": "PitchDeckBuilder",
+    "inputs": {
+      "keyframes": [
+        "jn",
+        0
+      ],
+      "shot_list_json": [
+        "sl",
+        0
+      ],
+      "brand": "NOVARA",
+      "client_line": "Spec commercial · 15s · 16:9",
+      "director": "Somar Awad",
+      "logline": "",
+      "tone_words": "warm, unhurried, Milanese morning",
+      "template": "editorial light",
+      "resolution": "1920x1080",
+      "filename_prefix": "treatment/novara_pitch_deck",
+      "supers_text": [
+        "scr",
+        1
+      ],
+      "voiceover_text": [
+        "scr",
+        0
+      ],
+      "logo": [
+        "lw",
+        0
+      ],
+      "logo_mask": [
+        "lw",
+        1
+      ],
+      "invert_mask": false,
+      "accent_hex": [
+        "pal",
+        2
+      ]
+    }
+  },
+  "sb": {
+    "class_type": "StoryboardSheet",
+    "inputs": {
+      "keyframes": [
+        "jn",
+        0
+      ],
+      "shot_list_json": [
+        "sl",
+        0
+      ],
+      "columns": 4,
+      "paper": "A4 landscape",
+      "save_pdf": true,
+      "filename_prefix": "treatment/novara_storyboard",
+      "brand": "NOVARA"
+    }
+  },
+  "pv1": {
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Treatment pages"
+    },
+    "inputs": {
+      "images": [
+        "tb",
+        1
+      ]
+    }
+  },
+  "pv2": {
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Deck slides"
+    },
+    "inputs": {
+      "images": [
+        "pd",
+        1
+      ]
+    }
+  },
+  "pv3": {
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Storyboard"
+    },
+    "inputs": {
+      "images": [
+        "sb",
+        0
+      ]
+    }
+  },
+  "pv4": {
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Palette"
+    },
+    "inputs": {
+      "images": [
+        "pal",
+        0
+      ]
+    }
+  },
+  "pa1": {
+    "class_type": "PreviewAny",
+    "_meta": {
+      "title": "Treatment PDF"
+    },
+    "inputs": {
+      "source": [
+        "tb",
+        0
+      ]
+    }
+  },
+  "pa2": {
+    "class_type": "PreviewAny",
+    "_meta": {
+      "title": "Deck PDF"
+    },
+    "inputs": {
+      "source": [
+        "pd",
+        0
+      ]
+    }
+  }
+}

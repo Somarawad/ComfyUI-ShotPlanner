@@ -104,7 +104,7 @@ class ShotCritic:
                 "reviews": ("INT", {"default": 3, "min": 1, "max": 5,
                                     "tooltip": "Independent reviews run in parallel; each shot gets the majority verdict. "
                                                "Makes fast models (e.g. Gemini Flash Lite) much more reliable."}),
-                "seed": ("INT", {"default": 1000, "min": 0, "max": 2**31 - 1,
+                "seed": ("INT", {"default": 1000, "min": 0, "max": 2**31 - 1, "control_after_generate": True,
                                  "tooltip": "Base seed for the re-renders (each candidate gets its own)."}),
             },
             "optional": {

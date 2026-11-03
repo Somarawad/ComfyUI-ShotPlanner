@@ -1,0 +1,2816 @@
+{
+ "last_node_id": 48,
+ "last_link_id": 67,
+ "nodes": [
+  {
+   "id": 1,
+   "type": "UNETLoader",
+   "pos": [
+    30,
+    442
+   ],
+   "size": [
+    330,
+    116
+   ],
+   "flags": {},
+   "order": 0,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      1
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "UNETLoader"
+   },
+   "widgets_values": [
+    "Wan2_1-I2V-ATI-14B_fp8_e4m3fn.safetensors",
+    "default"
+   ]
+  },
+  {
+   "id": 2,
+   "type": "LoraLoaderModelOnly",
+   "pos": [
+    420,
+    442
+   ],
+   "size": [
+    330,
+    116
+   ],
+   "flags": {},
+   "order": 10,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 1
+    }
+   ],
+   "outputs": [
+    {
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      7
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoraLoaderModelOnly"
+   },
+   "widgets_values": [
+    "Wan21_CausVid_14B_T2V_lora_rank32.safetensors",
+    0.7
+   ]
+  },
+  {
+   "id": 3,
+   "type": "ModelSamplingSD3",
+   "pos": [
+    900,
+    442
+   ],
+   "size": [
+    330,
+    90
+   ],
+   "flags": {},
+   "order": 14,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 7
+    }
+   ],
+   "outputs": [
+    {
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      22,
+      47
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ModelSamplingSD3"
+   },
+   "widgets_values": [
+    8
+   ]
+  },
+  {
+   "id": 4,
+   "type": "CLIPLoader",
+   "pos": [
+    30,
+    624
+   ],
+   "size": [
+    330,
+    142
+   ],
+   "flags": {},
+   "order": 1,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "CLIP",
+     "type": "CLIP",
+     "links": [
+      2,
+      5,
+      35
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "CLIPLoader"
+   },
+   "widgets_values": [
+    "umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+    "wan",
+    "default"
+   ]
+  },
+  {
+   "id": 5,
+   "type": "VAELoader",
+   "pos": [
+    30,
+    832
+   ],
+   "size": [
+    330,
+    90
+   ],
+   "flags": {},
+   "order": 2,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "VAE",
+     "type": "VAE",
+     "links": [
+      19,
+      27,
+      44,
+      53
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAELoader"
+   },
+   "widgets_values": [
+    "Wan2_1_VAE_fp32.safetensors"
+   ]
+  },
+  {
+   "id": 6,
+   "type": "CLIPVisionLoader",
+   "pos": [
+    30,
+    988
+   ],
+   "size": [
+    330,
+    90
+   ],
+   "flags": {},
+   "order": 3,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "CLIP_VISION",
+     "type": "CLIP_VISION",
+     "links": [
+      15,
+      40
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "CLIPVisionLoader"
+   },
+   "widgets_values": [
+    "clip_vision_h.safetensors"
+   ]
+  },
+  {
+   "id": 7,
+   "type": "CLIPTextEncode",
+   "pos": [
+    420,
+    624
+   ],
+   "size": [
+    420,
+    174
+   ],
+   "flags": {},
+   "order": 11,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "clip",
+     "type": "CLIP",
+     "link": 2
+    }
+   ],
+   "outputs": [
+    {
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "links": [
+      18,
+      43
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "CLIPTextEncode"
+   },
+   "widgets_values": [
+    "morphing, distorted face, extra fingers, warped text, flicker, blurry, static, low quality, jitter"
+   ]
+  },
+  {
+   "id": 8,
+   "type": "LoadImage",
+   "pos": [
+    30,
+    1144
+   ],
+   "size": [
+    330,
+    372
+   ],
+   "flags": {},
+   "order": 4,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      62
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": [
+      63
+     ],
+     "slot_index": 1
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoadImage"
+   },
+   "widgets_values": [
+    "novara_logo_white_transparent.png",
+    "image"
+   ]
+  },
+  {
+   "id": 9,
+   "type": "LoadImage",
+   "pos": [
+    1430,
+    233
+   ],
+   "size": [
+    330,
+    372
+   ],
+   "flags": {},
+   "order": 5,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      10,
+      12
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": [],
+     "slot_index": 1
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoadImage"
+   },
+   "widgets_values": [
+    "NOVARA/final_00001_.png [output]",
+    "image"
+   ]
+  },
+  {
+   "id": 10,
+   "type": "LoadImage",
+   "pos": [
+    1430,
+    671
+   ],
+   "size": [
+    330,
+    372
+   ],
+   "flags": {},
+   "order": 6,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      3
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": [],
+     "slot_index": 1
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoadImage"
+   },
+   "widgets_values": [
+    "NOVARA/final_00002_.png [output]",
+    "image"
+   ]
+  },
+  {
+   "id": 11,
+   "type": "LoadImage",
+   "pos": [
+    1430,
+    1109
+   ],
+   "size": [
+    330,
+    372
+   ],
+   "flags": {},
+   "order": 7,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      4
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": [],
+     "slot_index": 1
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoadImage"
+   },
+   "widgets_values": [
+    "NOVARA/final_00003_.png [output]",
+    "image"
+   ]
+  },
+  {
+   "id": 12,
+   "type": "LoadImage",
+   "pos": [
+    1820,
+    233
+   ],
+   "size": [
+    330,
+    372
+   ],
+   "flags": {},
+   "order": 8,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      9
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": [],
+     "slot_index": 1
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoadImage"
+   },
+   "widgets_values": [
+    "NOVARA/final_00004_.png [output]",
+    "image"
+   ]
+  },
+  {
+   "id": 13,
+   "type": "ImageBatch",
+   "pos": [
+    2210,
+    233
+   ],
+   "size": [
+    330,
+    86
+   ],
+   "flags": {},
+   "order": 12,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image1",
+     "type": "IMAGE",
+     "link": 3
+    },
+    {
+     "name": "image2",
+     "type": "IMAGE",
+     "link": 4
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      8
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ImageBatch"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 14,
+   "type": "ImageBatch",
+   "pos": [
+    2600,
+    233
+   ],
+   "size": [
+    330,
+    86
+   ],
+   "flags": {},
+   "order": 15,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image1",
+     "type": "IMAGE",
+     "link": 8
+    },
+    {
+     "name": "image2",
+     "type": "IMAGE",
+     "link": 9
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      11,
+      13
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ImageBatch"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 15,
+   "type": "ShotJoin",
+   "pos": [
+    2990,
+    233
+   ],
+   "size": [
+    330,
+    86
+   ],
+   "flags": {},
+   "order": 16,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "first",
+     "type": "IMAGE",
+     "link": 10
+    },
+    {
+     "name": "rest",
+     "type": "IMAGE",
+     "link": 11
+    }
+   ],
+   "outputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "links": [
+      14
+     ],
+     "slot_index": 0,
+     "shape": 6
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ShotJoin"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 16,
+   "type": "ImageScale",
+   "pos": [
+    3380,
+    233
+   ],
+   "size": [
+    330,
+    168
+   ],
+   "flags": {},
+   "order": 18,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image",
+     "type": "IMAGE",
+     "link": 14
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      16,
+      21,
+      30
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ImageScale"
+   },
+   "widgets_values": [
+    "lanczos",
+    832,
+    480,
+    "center"
+   ]
+  },
+  {
+   "id": 17,
+   "type": "CR Prompt List",
+   "pos": [
+    1820,
+    671
+   ],
+   "size": [
+    330,
+    194
+   ],
+   "flags": {},
+   "order": 9,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "string",
+     "type": "STRING",
+     "links": [
+      6,
+      31
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "CR Prompt List"
+   },
+   "widgets_values": [
+    "",
+    "Thick golden espresso pours steadily from the machine spout into the small glass cup, the cup fills and rich crema swirls and rises, wisps of steam curl upward, slow dolly push-in toward the cup, warm morning window light, cinematic\nThe barista hands the white NOVARA paper cup across the counter, the young woman in the camel coat takes it with both hands and smiles at the barista, gentle handheld camera, warm cafe light, natural motion\nA young woman with brown wavy hair in a camel coat slowly sips espresso from a white paper cup, lowers it and smiles warmly, soft morning window light, subtle slow push-in, natural motion\nThe young woman in the camel coat walks toward the camera along a sunny Milan street holding a white paper cup and takes a sip, people walking in the background, smooth backward tracking shot, natural motion",
+    "",
+    0,
+    4
+   ]
+  },
+  {
+   "id": 18,
+   "type": "CLIPTextEncode",
+   "pos": [
+    3910,
+    233
+   ],
+   "size": [
+    420,
+    174
+   ],
+   "flags": {},
+   "order": 13,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "clip",
+     "type": "CLIP",
+     "link": 5
+    },
+    {
+     "name": "text",
+     "type": "STRING",
+     "widget": {
+      "name": "text"
+     },
+     "link": 6
+    }
+   ],
+   "outputs": [
+    {
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "links": [
+      17
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "CLIPTextEncode"
+   },
+   "widgets_values": [
+    ""
+   ]
+  },
+  {
+   "id": 19,
+   "type": "CLIPVisionEncode",
+   "pos": [
+    4390,
+    233
+   ],
+   "size": [
+    330,
+    112
+   ],
+   "flags": {},
+   "order": 19,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "clip_vision",
+     "type": "CLIP_VISION",
+     "link": 15
+    },
+    {
+     "name": "image",
+     "type": "IMAGE",
+     "link": 16
+    }
+   ],
+   "outputs": [
+    {
+     "name": "CLIP_VISION_OUTPUT",
+     "type": "CLIP_VISION_OUTPUT",
+     "links": [
+      20
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "CLIPVisionEncode"
+   },
+   "widgets_values": [
+    "none"
+   ]
+  },
+  {
+   "id": 20,
+   "type": "WanImageToVideo",
+   "pos": [
+    4780,
+    233
+   ],
+   "size": [
+    330,
+    278
+   ],
+   "flags": {},
+   "order": 20,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "positive",
+     "type": "CONDITIONING",
+     "link": 17
+    },
+    {
+     "name": "negative",
+     "type": "CONDITIONING",
+     "link": 18
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 19
+    },
+    {
+     "name": "clip_vision_output",
+     "type": "CLIP_VISION_OUTPUT",
+     "link": 20,
+     "shape": 7
+    },
+    {
+     "name": "start_image",
+     "type": "IMAGE",
+     "link": 21,
+     "shape": 7
+    },
+    {
+     "name": "ref_pad_image",
+     "type": "IMAGE",
+     "link": null,
+     "shape": 7
+    }
+   ],
+   "outputs": [
+    {
+     "name": "positive",
+     "type": "CONDITIONING",
+     "links": [
+      23
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "negative",
+     "type": "CONDITIONING",
+     "links": [
+      24
+     ],
+     "slot_index": 1
+    },
+    {
+     "name": "latent",
+     "type": "LATENT",
+     "links": [
+      25
+     ],
+     "slot_index": 2
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "WanImageToVideo"
+   },
+   "widgets_values": [
+    832,
+    480,
+    65,
+    1
+   ]
+  },
+  {
+   "id": 21,
+   "type": "KSampler",
+   "pos": [
+    5170,
+    233
+   ],
+   "size": [
+    330,
+    286
+   ],
+   "flags": {},
+   "order": 21,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 22
+    },
+    {
+     "name": "positive",
+     "type": "CONDITIONING",
+     "link": 23
+    },
+    {
+     "name": "negative",
+     "type": "CONDITIONING",
+     "link": 24
+    },
+    {
+     "name": "latent_image",
+     "type": "LATENT",
+     "link": 25
+    }
+   ],
+   "outputs": [
+    {
+     "name": "LATENT",
+     "type": "LATENT",
+     "links": [
+      26
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "KSampler"
+   },
+   "widgets_values": [
+    11,
+    "fixed",
+    6,
+    1,
+    "uni_pc",
+    "simple",
+    1
+   ]
+  },
+  {
+   "id": 22,
+   "type": "VAEDecode",
+   "pos": [
+    5560,
+    233
+   ],
+   "size": [
+    330,
+    86
+   ],
+   "flags": {},
+   "order": 22,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "samples",
+     "type": "LATENT",
+     "link": 26
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 27
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      28
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAEDecode"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 23,
+   "type": "ShotVideoEngine",
+   "pos": [
+    5950,
+    233
+   ],
+   "size": [
+    330,
+    160
+   ],
+   "flags": {},
+   "order": 23,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "wan_clips",
+     "type": "IMAGE",
+     "link": 28,
+     "shape": 7
+    },
+    {
+     "name": "h3_clips",
+     "type": "IMAGE",
+     "link": null,
+     "shape": 7
+    },
+    {
+     "name": "api_videos",
+     "type": "VIDEO",
+     "link": null,
+     "shape": 7
+    }
+   ],
+   "outputs": [
+    {
+     "name": "clips",
+     "type": "IMAGE",
+     "links": [
+      29,
+      54
+     ],
+     "slot_index": 0,
+     "shape": 6
+    },
+    {
+     "name": "source_fps",
+     "type": "FLOAT",
+     "links": [
+      58
+     ],
+     "slot_index": 1
+    },
+    {
+     "name": "summary",
+     "type": "STRING",
+     "links": [
+      32
+     ],
+     "slot_index": 2
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ShotVideoEngine"
+   },
+   "widgets_values": [
+    "local: Wan",
+    0
+   ]
+  },
+  {
+   "id": 24,
+   "type": "ShotVideoQA",
+   "pos": [
+    30,
+    2061
+   ],
+   "size": [
+    420,
+    576
+   ],
+   "flags": {},
+   "order": 24,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "clips",
+     "type": "IMAGE",
+     "link": 29
+    },
+    {
+     "name": "keyframes",
+     "type": "IMAGE",
+     "link": 30
+    },
+    {
+     "name": "motion_prompts",
+     "type": "STRING",
+     "link": 31,
+     "shape": 7
+    }
+   ],
+   "outputs": [
+    {
+     "name": "report",
+     "type": "STRING",
+     "links": [
+      38
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "contact_sheet",
+     "type": "IMAGE",
+     "links": [
+      37
+     ],
+     "slot_index": 1
+    },
+    {
+     "name": "verdicts_json",
+     "type": "STRING",
+     "links": [
+      34,
+      55
+     ],
+     "slot_index": 2
+    },
+    {
+     "name": "reroll_shots",
+     "type": "STRING",
+     "links": [],
+     "slot_index": 3
+    },
+    {
+     "name": "reroll_prompts",
+     "type": "STRING",
+     "links": [
+      36
+     ],
+     "slot_index": 4,
+     "shape": 6
+    },
+    {
+     "name": "reroll_seeds",
+     "type": "INT",
+     "links": [
+      51
+     ],
+     "slot_index": 5,
+     "shape": 6
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ShotVideoQA"
+   },
+   "widgets_values": [
+    "Product shape and label stay identical.\nNo extra fingers.\nFaces stay the same person.\nNo melting or morphing objects.",
+    7,
+    true,
+    "gemini",
+    "",
+    6,
+    5,
+    "fixed",
+    "Brand: NOVARA espresso. The cup must stay white with NOVARA in black capitals and must not melt, warp or change shape. The woman (brown wavy hair, camel coat) must keep the same face for the whole clip. No extra fingers, no morphing hands.",
+    ""
+   ]
+  },
+  {
+   "id": 25,
+   "type": "ShotSelect",
+   "pos": [
+    510,
+    2061
+   ],
+   "size": [
+    330,
+    134
+   ],
+   "flags": {},
+   "order": 26,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "link": 33
+    },
+    {
+     "name": "verdicts_json",
+     "type": "STRING",
+     "link": 34
+    }
+   ],
+   "outputs": [
+    {
+     "name": "shots",
+     "type": "IMAGE",
+     "links": [
+      39
+     ],
+     "slot_index": 0,
+     "shape": 6
+    },
+    {
+     "name": "targets",
+     "type": "STRING",
+     "links": [],
+     "slot_index": 1,
+     "shape": 6
+    },
+    {
+     "name": "summary",
+     "type": "STRING",
+     "links": [],
+     "slot_index": 2
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ShotSelect"
+   },
+   "widgets_values": [
+    "reroll"
+   ]
+  },
+  {
+   "id": 26,
+   "type": "ImageScale",
+   "pos": [
+    990,
+    2061
+   ],
+   "size": [
+    330,
+    168
+   ],
+   "flags": {},
+   "order": 30,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image",
+     "type": "IMAGE",
+     "link": 39
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      41,
+      46
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ImageScale"
+   },
+   "widgets_values": [
+    "lanczos",
+    832,
+    480,
+    "center"
+   ]
+  },
+  {
+   "id": 27,
+   "type": "CLIPTextEncode",
+   "pos": [
+    510,
+    2261
+   ],
+   "size": [
+    420,
+    174
+   ],
+   "flags": {},
+   "order": 27,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "clip",
+     "type": "CLIP",
+     "link": 35
+    },
+    {
+     "name": "text",
+     "type": "STRING",
+     "widget": {
+      "name": "text"
+     },
+     "link": 36
+    }
+   ],
+   "outputs": [
+    {
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "links": [
+      42
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "CLIPTextEncode"
+   },
+   "widgets_values": [
+    ""
+   ]
+  },
+  {
+   "id": 28,
+   "type": "CLIPVisionEncode",
+   "pos": [
+    1380,
+    2061
+   ],
+   "size": [
+    330,
+    112
+   ],
+   "flags": {},
+   "order": 31,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "clip_vision",
+     "type": "CLIP_VISION",
+     "link": 40
+    },
+    {
+     "name": "image",
+     "type": "IMAGE",
+     "link": 41
+    }
+   ],
+   "outputs": [
+    {
+     "name": "CLIP_VISION_OUTPUT",
+     "type": "CLIP_VISION_OUTPUT",
+     "links": [
+      45
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "CLIPVisionEncode"
+   },
+   "widgets_values": [
+    "none"
+   ]
+  },
+  {
+   "id": 29,
+   "type": "WanImageToVideo",
+   "pos": [
+    1770,
+    2061
+   ],
+   "size": [
+    330,
+    278
+   ],
+   "flags": {},
+   "order": 32,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "positive",
+     "type": "CONDITIONING",
+     "link": 42
+    },
+    {
+     "name": "negative",
+     "type": "CONDITIONING",
+     "link": 43
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 44
+    },
+    {
+     "name": "clip_vision_output",
+     "type": "CLIP_VISION_OUTPUT",
+     "link": 45,
+     "shape": 7
+    },
+    {
+     "name": "start_image",
+     "type": "IMAGE",
+     "link": 46,
+     "shape": 7
+    },
+    {
+     "name": "ref_pad_image",
+     "type": "IMAGE",
+     "link": null,
+     "shape": 7
+    }
+   ],
+   "outputs": [
+    {
+     "name": "positive",
+     "type": "CONDITIONING",
+     "links": [
+      48
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "negative",
+     "type": "CONDITIONING",
+     "links": [
+      49
+     ],
+     "slot_index": 1
+    },
+    {
+     "name": "latent",
+     "type": "LATENT",
+     "links": [
+      50
+     ],
+     "slot_index": 2
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "WanImageToVideo"
+   },
+   "widgets_values": [
+    832,
+    480,
+    65,
+    1
+   ]
+  },
+  {
+   "id": 30,
+   "type": "KSampler",
+   "pos": [
+    2160,
+    2061
+   ],
+   "size": [
+    330,
+    286
+   ],
+   "flags": {},
+   "order": 33,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 47
+    },
+    {
+     "name": "positive",
+     "type": "CONDITIONING",
+     "link": 48
+    },
+    {
+     "name": "negative",
+     "type": "CONDITIONING",
+     "link": 49
+    },
+    {
+     "name": "latent_image",
+     "type": "LATENT",
+     "link": 50
+    },
+    {
+     "name": "seed",
+     "type": "INT",
+     "widget": {
+      "name": "seed"
+     },
+     "link": 51
+    }
+   ],
+   "outputs": [
+    {
+     "name": "LATENT",
+     "type": "LATENT",
+     "links": [
+      52
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "KSampler"
+   },
+   "widgets_values": [
+    0,
+    "fixed",
+    6,
+    1,
+    "uni_pc",
+    "simple",
+    1
+   ]
+  },
+  {
+   "id": 31,
+   "type": "VAEDecode",
+   "pos": [
+    2550,
+    2061
+   ],
+   "size": [
+    330,
+    86
+   ],
+   "flags": {},
+   "order": 34,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "samples",
+     "type": "LATENT",
+     "link": 52
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 53
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      56
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAEDecode"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 32,
+   "type": "ClipRerollMerge",
+   "pos": [
+    2940,
+    2061
+   ],
+   "size": [
+    330,
+    108
+   ],
+   "flags": {},
+   "order": 35,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "clips",
+     "type": "IMAGE",
+     "link": 54
+    },
+    {
+     "name": "verdicts_json",
+     "type": "STRING",
+     "link": 55
+    },
+    {
+     "name": "rerolled",
+     "type": "IMAGE",
+     "link": 56,
+     "shape": 7
+    }
+   ],
+   "outputs": [
+    {
+     "name": "clips",
+     "type": "IMAGE",
+     "links": [
+      57
+     ],
+     "slot_index": 0,
+     "shape": 6
+    },
+    {
+     "name": "report",
+     "type": "STRING",
+     "links": [
+      59
+     ],
+     "slot_index": 1
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ClipRerollMerge"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 33,
+   "type": "ClipResampleFPS",
+   "pos": [
+    3910,
+    1985
+   ],
+   "size": [
+    330,
+    164
+   ],
+   "flags": {},
+   "order": 36,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "clips",
+     "type": "IMAGE",
+     "link": 57
+    },
+    {
+     "name": "source_fps",
+     "type": "FLOAT",
+     "widget": {
+      "name": "source_fps"
+     },
+     "link": 58
+    }
+   ],
+   "outputs": [
+    {
+     "name": "clips",
+     "type": "IMAGE",
+     "links": [
+      60
+     ],
+     "slot_index": 0,
+     "shape": 6
+    },
+    {
+     "name": "fps",
+     "type": "FLOAT",
+     "links": [],
+     "slot_index": 1
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ClipResampleFPS"
+   },
+   "widgets_values": [
+    16.0,
+    24,
+    "blend"
+   ]
+  },
+  {
+   "id": 34,
+   "type": "AdTimeline",
+   "pos": [
+    4300,
+    1985
+   ],
+   "size": [
+    330,
+    360
+   ],
+   "flags": {},
+   "order": 38,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "shots",
+     "type": "IMAGE",
+     "link": 60
+    },
+    {
+     "name": "shot_list_json",
+     "type": "STRING",
+     "link": null,
+     "shape": 7
+    }
+   ],
+   "outputs": [
+    {
+     "name": "frames",
+     "type": "IMAGE",
+     "links": [
+      61
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "frame_count",
+     "type": "INT",
+     "links": [],
+     "slot_index": 1
+    },
+    {
+     "name": "fps",
+     "type": "FLOAT",
+     "links": [],
+     "slot_index": 2
+    },
+    {
+     "name": "timing_json",
+     "type": "STRING",
+     "links": [
+      65
+     ],
+     "slot_index": 3
+    },
+    {
+     "name": "total_seconds",
+     "type": "FLOAT",
+     "links": [],
+     "slot_index": 4
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "AdTimeline"
+   },
+   "widgets_values": [
+    24,
+    1920,
+    "16:9",
+    "crossfade",
+    10,
+    0,
+    "3.5, 4, 4, 4",
+    false
+   ]
+  },
+  {
+   "id": 35,
+   "type": "AdEndCard",
+   "pos": [
+    4690,
+    1985
+   ],
+   "size": [
+    330,
+    420
+   ],
+   "flags": {},
+   "order": 39,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "frames",
+     "type": "IMAGE",
+     "link": 61
+    },
+    {
+     "name": "logo",
+     "type": "IMAGE",
+     "link": 62,
+     "shape": 7
+    },
+    {
+     "name": "logo_mask",
+     "type": "MASK",
+     "link": 63,
+     "shape": 7
+    }
+   ],
+   "outputs": [
+    {
+     "name": "frames",
+     "type": "IMAGE",
+     "links": [
+      64
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "frame_count",
+     "type": "INT",
+     "links": [],
+     "slot_index": 1
+    },
+    {
+     "name": "total_seconds",
+     "type": "FLOAT",
+     "links": [],
+     "slot_index": 2
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "AdEndCard"
+   },
+   "widgets_values": [
+    "Slow down. Sip.",
+    "novara.it",
+    "blurred last frame",
+    "#111111",
+    3,
+    24,
+    0.35,
+    12,
+    false,
+    "#FFFFFF",
+    24.0,
+    ""
+   ]
+  },
+  {
+   "id": 36,
+   "type": "AdSupers",
+   "pos": [
+    5080,
+    1985
+   ],
+   "size": [
+    420,
+    404
+   ],
+   "flags": {},
+   "order": 40,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "frames",
+     "type": "IMAGE",
+     "link": 64
+    },
+    {
+     "name": "timing_json",
+     "type": "STRING",
+     "link": 65,
+     "shape": 7
+    }
+   ],
+   "outputs": [
+    {
+     "name": "frames",
+     "type": "IMAGE",
+     "links": [
+      66
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "AdSupers"
+   },
+   "widgets_values": [
+    "2 | Milano, every morning.\n4 | Your first sip of the day.",
+    64,
+    "lower third",
+    "white with soft shadow",
+    8,
+    8,
+    24.0,
+    "#FFFFFF",
+    ""
+   ]
+  },
+  {
+   "id": 37,
+   "type": "CreateVideo",
+   "pos": [
+    5560,
+    1985
+   ],
+   "size": [
+    330,
+    216
+   ],
+   "flags": {},
+   "order": 41,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "link": 66
+    },
+    {
+     "name": "audio",
+     "type": "AUDIO",
+     "link": null,
+     "shape": 7
+    }
+   ],
+   "outputs": [
+    {
+     "name": "VIDEO",
+     "type": "VIDEO",
+     "links": [
+      67
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "CreateVideo"
+   },
+   "widgets_values": [
+    24,
+    "auto",
+    "sRGB",
+    "auto",
+    "none"
+   ]
+  },
+  {
+   "id": 38,
+   "type": "SaveVideo",
+   "pos": [
+    5950,
+    1985
+   ],
+   "size": [
+    330,
+    260
+   ],
+   "flags": {},
+   "order": 42,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "video",
+     "type": "VIDEO",
+     "link": 67
+    },
+    {
+     "name": "format",
+     "type": "COMFY_DYNAMICCOMBO_V3",
+     "link": null
+    },
+    {
+     "name": "codec",
+     "type": "COMFY_DYNAMICCOMBO_V3",
+     "link": null,
+     "shape": 7
+    }
+   ],
+   "outputs": [
+    {
+     "name": "video",
+     "type": "VIDEO",
+     "links": [],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "SaveVideo"
+   },
+   "widgets_values": [
+    "NOVARA/spot_video"
+   ]
+  },
+  {
+   "id": 39,
+   "type": "SaveImage",
+   "pos": [
+    510,
+    2501
+   ],
+   "size": [
+    330,
+    260
+   ],
+   "flags": {},
+   "order": 28,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "link": 37
+    }
+   ],
+   "outputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "links": [],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "SaveImage"
+   },
+   "widgets_values": [
+    "NOVARA/video_qa"
+   ]
+  },
+  {
+   "id": 40,
+   "type": "PreviewAny",
+   "pos": [
+    510,
+    2827
+   ],
+   "size": [
+    380,
+    260
+   ],
+   "flags": {},
+   "order": 29,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "source",
+     "type": "*",
+     "link": 38
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "PreviewAny"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 41,
+   "type": "PreviewAny",
+   "pos": [
+    3330,
+    2061
+   ],
+   "size": [
+    380,
+    260
+   ],
+   "flags": {},
+   "order": 37,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "source",
+     "type": "*",
+     "link": 59
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "PreviewAny"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 42,
+   "type": "PreviewAny",
+   "pos": [
+    6340,
+    233
+   ],
+   "size": [
+    380,
+    260
+   ],
+   "flags": {},
+   "order": 25,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "source",
+     "type": "*",
+     "link": 32
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "PreviewAny"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 43,
+   "type": "ImageBatch",
+   "pos": [
+    2990,
+    385
+   ],
+   "size": [
+    330,
+    86
+   ],
+   "flags": {},
+   "order": 17,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image1",
+     "type": "IMAGE",
+     "link": 12
+    },
+    {
+     "name": "image2",
+     "type": "IMAGE",
+     "link": 13
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      33
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ImageBatch"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 44,
+   "type": "Note",
+   "pos": [
+    30,
+    70
+   ],
+   "size": [
+    900,
+    306
+   ],
+   "flags": {},
+   "order": 43,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [],
+   "properties": {},
+   "widgets_values": [
+    "Wan 2.1 image-to-video on a 10 GB GPU (folders inside your ComfyUI folder):\n- models/diffusion_models/Wan2_1-I2V-ATI-14B_fp8_e4m3fn.safetensors  (Kijai/WanVideo_comfy; any Wan 2.1 I2V 14B fp8 works)\n- models/loras/Wan21_CausVid_14B_T2V_lora_rank32.safetensors  (CausVid, Kijai/WanVideo_comfy): 6 steps at cfg 1\n- models/text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors  (Comfy-Org/Wan_2.1_ComfyUI_repackaged)\n- models/clip_vision/clip_vision_h.safetensors  (Comfy-Org/Wan_2.1_ComfyUI_repackaged)\n- models/vae/Wan2_1_VAE_fp32.safetensors  (Kijai/WanVideo_comfy; wan_2.1_vae also works)\nLow VRAM: start ComfyUI with --lowvram, keep 832x480 and 65 frames."
+   ],
+   "color": "#432",
+   "bgcolor": "#653",
+   "title": "Note: 0 · Wan 2.1 models"
+  },
+  {
+   "id": 45,
+   "type": "Note",
+   "pos": [
+    1430,
+    70
+   ],
+   "size": [
+    900,
+    97
+   ],
+   "flags": {},
+   "order": 44,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [],
+   "properties": {},
+   "widgets_values": [
+    "The approved stills from 03_novara_stills_spot (output/NOVARA/final_*.png), scaled to 832x480. CR Prompt List gives one motion prompt per shot (or use Shot Motion Prompts from the shot list)."
+   ],
+   "color": "#432",
+   "bgcolor": "#653",
+   "title": "Note: 1 · Approved keyframes and motion prompts"
+  },
+  {
+   "id": 46,
+   "type": "Note",
+   "pos": [
+    3910,
+    70
+   ],
+   "size": [
+    900,
+    97
+   ],
+   "flags": {},
+   "order": 45,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [],
+   "properties": {},
+   "widgets_values": [
+    "Wan 2.1 I2V renders one clip per shot. Shot Video Engine is the switch in front of the video stage: wire other branches (MiniMax H3, or an API node such as Kling / Seedance / Hailuo) into its other inputs and pick one; only the chosen branch runs."
+   ],
+   "color": "#432",
+   "bgcolor": "#653",
+   "title": "Note: 2 · Shot Video Engine: Wan branch"
+  },
+  {
+   "id": 47,
+   "type": "Note",
+   "pos": [
+    30,
+    1822
+   ],
+   "size": [
+    900,
+    173
+   ],
+   "flags": {},
+   "order": 46,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [],
+   "properties": {},
+   "widgets_values": [
+    "Shot Video QA checks every clip offline (frozen, flicker, jumps, drift from the keyframe, melting regions) and with Gemini (use_llm). Failed shots get a new prompt and seed; the reroll branch renders only those, and Clip Reroll Merge puts them back. When every clip passes, the reroll branch never runs.\nAPI keys: set them as environment variables before starting ComfyUI, never in the workflow. GEMINI_API_KEY (or GOOGLE_API_KEY), ANTHROPIC_API_KEY, OPENAI_API_KEY, ELEVENLABS_API_KEY."
+   ],
+   "color": "#432",
+   "bgcolor": "#653",
+   "title": "Note: 3 · Shot Video QA and reroll"
+  },
+  {
+   "id": 48,
+   "type": "Note",
+   "pos": [
+    3910,
+    1822
+   ],
+   "size": [
+    900,
+    97
+   ],
+   "flags": {},
+   "order": 47,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [],
+   "properties": {},
+   "widgets_values": [
+    "Clip Resample FPS turns the 16 fps Wan clips into 24 fps for the timeline. Ad Timeline joins the clips with crossfades, Ad End Card and Ad Supers finish the spot, Save Video writes the MP4."
+   ],
+   "color": "#432",
+   "bgcolor": "#653",
+   "title": "Note: 4 · Resample and assemble (MP4)"
+  }
+ ],
+ "links": [
+  [
+   1,
+   1,
+   0,
+   2,
+   0,
+   "MODEL"
+  ],
+  [
+   2,
+   4,
+   0,
+   7,
+   0,
+   "CLIP"
+  ],
+  [
+   3,
+   10,
+   0,
+   13,
+   0,
+   "IMAGE"
+  ],
+  [
+   4,
+   11,
+   0,
+   13,
+   1,
+   "IMAGE"
+  ],
+  [
+   5,
+   4,
+   0,
+   18,
+   0,
+   "CLIP"
+  ],
+  [
+   6,
+   17,
+   0,
+   18,
+   1,
+   "STRING"
+  ],
+  [
+   7,
+   2,
+   0,
+   3,
+   0,
+   "MODEL"
+  ],
+  [
+   8,
+   13,
+   0,
+   14,
+   0,
+   "IMAGE"
+  ],
+  [
+   9,
+   12,
+   0,
+   14,
+   1,
+   "IMAGE"
+  ],
+  [
+   10,
+   9,
+   0,
+   15,
+   0,
+   "IMAGE"
+  ],
+  [
+   11,
+   14,
+   0,
+   15,
+   1,
+   "IMAGE"
+  ],
+  [
+   12,
+   9,
+   0,
+   43,
+   0,
+   "IMAGE"
+  ],
+  [
+   13,
+   14,
+   0,
+   43,
+   1,
+   "IMAGE"
+  ],
+  [
+   14,
+   15,
+   0,
+   16,
+   0,
+   "IMAGE"
+  ],
+  [
+   15,
+   6,
+   0,
+   19,
+   0,
+   "CLIP_VISION"
+  ],
+  [
+   16,
+   16,
+   0,
+   19,
+   1,
+   "IMAGE"
+  ],
+  [
+   17,
+   18,
+   0,
+   20,
+   0,
+   "CONDITIONING"
+  ],
+  [
+   18,
+   7,
+   0,
+   20,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   19,
+   5,
+   0,
+   20,
+   2,
+   "VAE"
+  ],
+  [
+   20,
+   19,
+   0,
+   20,
+   3,
+   "CLIP_VISION_OUTPUT"
+  ],
+  [
+   21,
+   16,
+   0,
+   20,
+   4,
+   "IMAGE"
+  ],
+  [
+   22,
+   3,
+   0,
+   21,
+   0,
+   "MODEL"
+  ],
+  [
+   23,
+   20,
+   0,
+   21,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   24,
+   20,
+   1,
+   21,
+   2,
+   "CONDITIONING"
+  ],
+  [
+   25,
+   20,
+   2,
+   21,
+   3,
+   "LATENT"
+  ],
+  [
+   26,
+   21,
+   0,
+   22,
+   0,
+   "LATENT"
+  ],
+  [
+   27,
+   5,
+   0,
+   22,
+   1,
+   "VAE"
+  ],
+  [
+   28,
+   22,
+   0,
+   23,
+   0,
+   "IMAGE"
+  ],
+  [
+   29,
+   23,
+   0,
+   24,
+   0,
+   "IMAGE"
+  ],
+  [
+   30,
+   16,
+   0,
+   24,
+   1,
+   "IMAGE"
+  ],
+  [
+   31,
+   17,
+   0,
+   24,
+   2,
+   "STRING"
+  ],
+  [
+   32,
+   23,
+   2,
+   42,
+   0,
+   "STRING"
+  ],
+  [
+   33,
+   43,
+   0,
+   25,
+   0,
+   "IMAGE"
+  ],
+  [
+   34,
+   24,
+   2,
+   25,
+   1,
+   "STRING"
+  ],
+  [
+   35,
+   4,
+   0,
+   27,
+   0,
+   "CLIP"
+  ],
+  [
+   36,
+   24,
+   4,
+   27,
+   1,
+   "STRING"
+  ],
+  [
+   37,
+   24,
+   1,
+   39,
+   0,
+   "IMAGE"
+  ],
+  [
+   38,
+   24,
+   0,
+   40,
+   0,
+   "STRING"
+  ],
+  [
+   39,
+   25,
+   0,
+   26,
+   0,
+   "IMAGE"
+  ],
+  [
+   40,
+   6,
+   0,
+   28,
+   0,
+   "CLIP_VISION"
+  ],
+  [
+   41,
+   26,
+   0,
+   28,
+   1,
+   "IMAGE"
+  ],
+  [
+   42,
+   27,
+   0,
+   29,
+   0,
+   "CONDITIONING"
+  ],
+  [
+   43,
+   7,
+   0,
+   29,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   44,
+   5,
+   0,
+   29,
+   2,
+   "VAE"
+  ],
+  [
+   45,
+   28,
+   0,
+   29,
+   3,
+   "CLIP_VISION_OUTPUT"
+  ],
+  [
+   46,
+   26,
+   0,
+   29,
+   4,
+   "IMAGE"
+  ],
+  [
+   47,
+   3,
+   0,
+   30,
+   0,
+   "MODEL"
+  ],
+  [
+   48,
+   29,
+   0,
+   30,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   49,
+   29,
+   1,
+   30,
+   2,
+   "CONDITIONING"
+  ],
+  [
+   50,
+   29,
+   2,
+   30,
+   3,
+   "LATENT"
+  ],
+  [
+   51,
+   24,
+   5,
+   30,
+   4,
+   "INT"
+  ],
+  [
+   52,
+   30,
+   0,
+   31,
+   0,
+   "LATENT"
+  ],
+  [
+   53,
+   5,
+   0,
+   31,
+   1,
+   "VAE"
+  ],
+  [
+   54,
+   23,
+   0,
+   32,
+   0,
+   "IMAGE"
+  ],
+  [
+   55,
+   24,
+   2,
+   32,
+   1,
+   "STRING"
+  ],
+  [
+   56,
+   31,
+   0,
+   32,
+   2,
+   "IMAGE"
+  ],
+  [
+   57,
+   32,
+   0,
+   33,
+   0,
+   "IMAGE"
+  ],
+  [
+   58,
+   23,
+   1,
+   33,
+   1,
+   "FLOAT"
+  ],
+  [
+   59,
+   32,
+   1,
+   41,
+   0,
+   "STRING"
+  ],
+  [
+   60,
+   33,
+   0,
+   34,
+   0,
+   "IMAGE"
+  ],
+  [
+   61,
+   34,
+   0,
+   35,
+   0,
+   "IMAGE"
+  ],
+  [
+   62,
+   8,
+   0,
+   35,
+   1,
+   "IMAGE"
+  ],
+  [
+   63,
+   8,
+   1,
+   35,
+   2,
+   "MASK"
+  ],
+  [
+   64,
+   35,
+   0,
+   36,
+   0,
+   "IMAGE"
+  ],
+  [
+   65,
+   34,
+   3,
+   36,
+   1,
+   "STRING"
+  ],
+  [
+   66,
+   36,
+   0,
+   37,
+   0,
+   "IMAGE"
+  ],
+  [
+   67,
+   37,
+   0,
+   38,
+   0,
+   "VIDEO"
+  ]
+ ],
+ "groups": [
+  {
+   "id": 1,
+   "title": "0 · Wan 2.1 models",
+   "bounding": [
+    0,
+    0,
+    1260,
+    1612
+   ],
+   "color": "#222",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 2,
+   "title": "1 · Approved keyframes and motion prompts",
+   "bounding": [
+    1400,
+    0,
+    2340,
+    1577
+   ],
+   "color": "#3f789e",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 3,
+   "title": "2 · Shot Video Engine: Wan branch",
+   "bounding": [
+    3880,
+    0,
+    2870,
+    615
+   ],
+   "color": "#3f5159",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 4,
+   "title": "3 · Shot Video QA and reroll",
+   "bounding": [
+    0,
+    1752,
+    3740,
+    1431
+   ],
+   "color": "#b06634",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 5,
+   "title": "4 · Resample and assemble (MP4)",
+   "bounding": [
+    3880,
+    1752,
+    2430,
+    749
+   ],
+   "color": "#335",
+   "font_size": 24,
+   "flags": {}
+  }
+ ],
+ "config": {},
+ "extra": {
+  "ds": {
+   "scale": 0.5,
+   "offset": [
+    0,
+    0
+   ]
+  },
+  "shotplanner": {
+   "source_api": "examples/api/novara_video_stage_api.json",
+   "third_party_nodes": [
+    "CR Prompt List (Comfyroll)"
+   ]
+  }
+ },
+ "version": 0.4
+}

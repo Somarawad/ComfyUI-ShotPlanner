@@ -1,0 +1,183 @@
+{
+  "sp": {
+    "class_type": "ShotPlanner",
+    "_meta": {
+      "title": "Shot Planner (Brief to Shots)"
+    },
+    "inputs": {
+      "brief": "15-second spec ad for NOVARA, a Milan espresso brand. Early morning in a small Milan cafe: a barista pulls a shot, a commuter takes the first sip at the window, the city wakes up outside. End on the NOVARA cup.",
+      "provider": "offline",
+      "model": "",
+      "num_shots": 4,
+      "style": "cinematic commercial, photoreal, warm morning light, 35mm",
+      "aspect_ratio": "16:9",
+      "shot_seconds": 4,
+      "api_key": "",
+      "extra_instructions": ""
+    }
+  },
+  "ps": {
+    "class_type": "PreviewAny",
+    "_meta": {
+      "title": "Storyboard"
+    },
+    "inputs": {
+      "source": [
+        "sp",
+        4
+      ]
+    }
+  },
+  "ck": {
+    "class_type": "CheckpointLoaderSimple",
+    "inputs": {
+      "ckpt_name": "juggernautXL_juggXIByRundiffusion.safetensors"
+    }
+  },
+  "pos": {
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "Image prompt (one per shot)"
+    },
+    "inputs": {
+      "clip": [
+        "ck",
+        1
+      ],
+      "text": [
+        "sp",
+        2
+      ]
+    }
+  },
+  "neg": {
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "Negative"
+    },
+    "inputs": {
+      "clip": [
+        "ck",
+        1
+      ],
+      "text": "blurry, deformed hands, extra fingers, watermark, lowres, text artifacts"
+    }
+  },
+  "lat": {
+    "class_type": "EmptyLatentImage",
+    "inputs": {
+      "width": 1344,
+      "height": 768,
+      "batch_size": 1
+    }
+  },
+  "ks": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": [
+        "ck",
+        0
+      ],
+      "positive": [
+        "pos",
+        0
+      ],
+      "negative": [
+        "neg",
+        0
+      ],
+      "latent_image": [
+        "lat",
+        0
+      ],
+      "seed": 101,
+      "steps": 25,
+      "cfg": 5,
+      "sampler_name": "dpmpp_2m",
+      "scheduler": "karras",
+      "denoise": 1
+    }
+  },
+  "vd": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "ks",
+        0
+      ],
+      "vae": [
+        "ck",
+        2
+      ]
+    }
+  },
+  "s0": {
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Keyframes"
+    },
+    "inputs": {
+      "images": [
+        "vd",
+        0
+      ],
+      "filename_prefix": "ShotPlanner/keyframe"
+    }
+  },
+  "an": {
+    "class_type": "ShotAnimatic",
+    "inputs": {
+      "keyframes": [
+        "vd",
+        0
+      ],
+      "fps": 12,
+      "width": 960,
+      "aspect_ratio": "from keyframe",
+      "motion_strength": 0.12,
+      "crossfade_frames": 4,
+      "default_seconds": 3,
+      "shot_list_json": [
+        "sp",
+        0
+      ]
+    }
+  },
+  "pt": {
+    "class_type": "PreviewAny",
+    "_meta": {
+      "title": "Animatic timing"
+    },
+    "inputs": {
+      "source": [
+        "an",
+        3
+      ]
+    }
+  },
+  "cv": {
+    "class_type": "CreateVideo",
+    "inputs": {
+      "images": [
+        "an",
+        0
+      ],
+      "fps": [
+        "an",
+        2
+      ]
+    }
+  },
+  "sv": {
+    "class_type": "SaveVideo",
+    "inputs": {
+      "video": [
+        "cv",
+        0
+      ],
+      "filename_prefix": "ShotPlanner/animatic",
+      "format": "auto",
+      "codec": "auto"
+    }
+  }
+}

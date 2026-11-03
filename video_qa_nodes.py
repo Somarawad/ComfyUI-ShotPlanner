@@ -57,7 +57,9 @@ class ShotVideoQA:
                 "frames_per_clip": ("INT", {"default": 6, "min": 2, "max": 16,
                     "tooltip": "Frames sampled evenly from each clip for the LLM and the "
                                "contact sheet."}),
-                "seed": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFF,
+                # control_after_generate is explicit (as on KSampler): when the frontend added it
+                # implicitly, frontend 1.57 dropped brand_rules / api_key on reopening a workflow
+                "seed": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFF, "control_after_generate": True,
                     "tooltip": "Base seed: the LLM call uses it, and every failed shot gets a "
                                "new reroll seed derived from it and the shot number."}),
             },
