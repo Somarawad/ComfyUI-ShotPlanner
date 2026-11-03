@@ -266,7 +266,7 @@ def check_import(rep, server_log):
     elif not timing:
         rep.fail("the pack is not in ComfyUI's custom node import list (was it linked into custom_nodes?)")
     else:
-        rep.ok("imported without errors: " + " ".join(timing[0].split()[-3:]))
+        rep.ok("imported without errors (" + timing[0].split("seconds")[0].split()[-1] + " s)")
 
 
 def check_object_info(rep, info, mappings):
@@ -360,9 +360,14 @@ def main():
     if not args.url and not args.comfy_dir:
         ap.error("give --comfy-dir (or --url of a running ComfyUI)")
 
-    mappings = load_pack_mappings()
-    prompts = load_prompts(args.api_dir)
     rep = Report()
+    try:
+        mappings = load_pack_mappings()
+    except Exception as e:  # still start ComfyUI so its own import report is shown too
+        import traceback
+        rep.fail("the pack does not import outside ComfyUI either:\n" + traceback.format_exc(limit=3))
+        mappings = {}
+    prompts = load_prompts(args.api_dir)
     server, stub_dir, stubbed = None, None, set()
     try:
         if args.url:
@@ -389,8 +394,9 @@ def main():
             log(f"third-party nodes not installed, stubbed for validation: {', '.join(sorted(stubbed))}")
         if server:
             check_import(rep, server_log)
-        check_object_info(rep, info, mappings)
-        check_prompts(rep, url, prompts, stubbed)
+        if mappings:
+            check_object_info(rep, info, mappings)
+            check_prompts(rep, url, prompts, stubbed)
     finally:
         if server and not args.keep_server:
             server.stop()
