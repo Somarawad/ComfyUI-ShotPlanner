@@ -12,19 +12,27 @@ class ShotPlanner:
             "required": {
                 "brief": ("STRING", {"multiline": True, "default":
                     "A tired office worker finds a tiny dragon living in the office coffee machine. "
-                    "It refuses to make coffee until she brings it a croissant."}),
+                    "It refuses to make coffee until she brings it a croissant.",
+                    "tooltip": "The brief, script or idea in plain words. Product, place, people and "
+                               "mood all help the shots."}),
                 "provider": (PROVIDERS, {"default": "offline",
                     "tooltip": "offline needs no key (template-based). Others call the LLM API."}),
                 "model": ("STRING", {"default": "", "tooltip": "Leave empty for the provider's default model."}),
-                "num_shots": ("INT", {"default": 6, "min": 1, "max": 30}),
-                "style": ("STRING", {"default": "cinematic, photoreal, natural light"}),
-                "aspect_ratio": (ASPECT_RATIOS, {"default": "16:9"}),
-                "shot_seconds": ("INT", {"default": 5, "min": 1, "max": 20}),
+                "num_shots": ("INT", {"default": 6, "min": 1, "max": 30,
+                    "tooltip": "How many shots to plan."}),
+                "style": ("STRING", {"default": "cinematic, photoreal, natural light",
+                    "tooltip": "Visual style written into every image prompt."}),
+                "aspect_ratio": (ASPECT_RATIOS, {"default": "16:9",
+                    "tooltip": "Frame format, written into the prompts. Set your latent size to match."}),
+                "shot_seconds": ("INT", {"default": 5, "min": 1, "max": 20,
+                    "tooltip": "Target length of each shot in seconds (an LLM may vary it per shot)."}),
             },
             "optional": {
                 "api_key": ("STRING", {"default": "",
                     "tooltip": "Optional. Prefer the environment variable so the key is not saved in the workflow."}),
-                "extra_instructions": ("STRING", {"multiline": True, "default": ""}),
+                "extra_instructions": ("STRING", {"multiline": True, "default": "",
+                    "tooltip": "Rules the LLM must follow, e.g. how the product or a character always "
+                               "looks. Ignored by the offline provider."}),
             },
         }
 
@@ -61,13 +69,16 @@ class ShotSelector:
     @classmethod
     def INPUT_TYPES(cls):
         return {"required": {
-            "shot_list_json": ("STRING", {"forceInput": True}),
+            "shot_list_json": ("STRING", {"forceInput": True,
+                                          "tooltip": "Shot Planner or Shot List Editor shot_list_json."}),
             "shot_number": ("INT", {"default": 1, "min": 1, "max": 30,
                                     "tooltip": "1 = first shot. Clamped to the last shot."}),
         }}
 
     RETURN_TYPES = ("STRING", "STRING", "INT", "STRING", "STRING")
     RETURN_NAMES = ("image_prompt", "video_prompt", "duration", "camera", "description")
+    OUTPUT_TOOLTIPS = ("Image prompt of the shot.", "Video prompt of the shot.",
+                       "Duration in seconds.", "Camera move / framing note.", "What happens in the shot.")
     FUNCTION = "select"
     CATEGORY = "Shot Planner"
     DESCRIPTION = "Outputs the prompts and duration for one shot."
@@ -90,10 +101,13 @@ class ShotListEditor:
     def INPUT_TYPES(cls):
         return {"required": {"shot_list_json": ("STRING", {"multiline": True, "default":
             '{"title": "My film", "style": "cinematic", "shots": [{"id": 1, "description": "", '
-            '"camera": "", "duration": 5, "image_prompt": "", "video_prompt": ""}]}'})}}
+            '"camera": "", "duration": 5, "image_prompt": "", "video_prompt": ""}]}',
+            "tooltip": "A shot list as JSON: title, style and shots (id, description, camera, duration, "
+                       "image_prompt, video_prompt). Paste the planner's output here to tweak it."})}}
 
     RETURN_TYPES = ("STRING", "INT")
     RETURN_NAMES = ("shot_list_json", "shot_count")
+    OUTPUT_TOOLTIPS = ("The validated shot list, same format as Shot Planner's.", "Number of shots.")
     FUNCTION = "edit"
     CATEGORY = "Shot Planner"
     DESCRIPTION = "Validates a hand-edited shot list so it can feed Shot Selector."

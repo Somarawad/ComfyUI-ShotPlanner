@@ -85,14 +85,17 @@ class ShotCritic:
         return {
             "required": {
                 "images": ("IMAGE", {"tooltip": "One image per shot (the list from your sampler chain), or video clips."}),
-                "provider": (CRITIC_PROVIDERS, {"default": "gemini"}),
+                "provider": (CRITIC_PROVIDERS, {"default": "gemini",
+                    "tooltip": "Vision LLM that reviews the shots: gemini (GEMINI_API_KEY / GOOGLE_API_KEY), "
+                               "anthropic (ANTHROPIC_API_KEY) or openai (OPENAI_API_KEY)."}),
                 "model": ("STRING", {"default": "", "tooltip": "Leave empty for the default (Gemini: Flash Lite, falls back to Flash if unavailable)."}),
                 "pass_score": ("INT", {"default": 7, "min": 1, "max": 10,
                                        "tooltip": "Shots scoring below this fail and get a rewritten prompt."}),
                 "input_type": (["images (one per shot)", "video clips (one batch per shot)"],
                                {"default": "images (one per shot)",
                                 "tooltip": "For clips, the start, middle and end frames are reviewed."}),
-                "checks": ("STRING", {"multiline": True, "default": DEFAULT_CHECKS}),
+                "checks": ("STRING", {"multiline": True, "default": DEFAULT_CHECKS,
+                    "tooltip": "What the critic checks on every shot, one topic per line."}),
                 "brand_rules": ("STRING", {"multiline": True, "default": "",
                                            "tooltip": "Anything that must be true, e.g. 'The cup logo reads NOVARA in white capitals'."}),
                 "candidates": ("INT", {"default": 3, "min": 1, "max": 8,
@@ -185,7 +188,8 @@ class ShotRerollMerge:
         return {
             "required": {
                 "images": ("IMAGE", {"tooltip": "The original shots (same list the critic reviewed)."}),
-                "verdicts_json": ("STRING", {"forceInput": True}),
+                "verdicts_json": ("STRING", {"forceInput": True,
+                                             "tooltip": "Shot Critic verdicts_json: says which shots to replace."}),
                 "route": (["reroll", "consistency", "detail"], {"default": "reroll",
                           "tooltip": "Which shots to replace: re-rendered ones, ones edited for consistency, or ones given a detail fix."}),
             },
@@ -202,6 +206,8 @@ class ShotRerollMerge:
     RETURN_TYPES = ("IMAGE", "STRING")
     RETURN_NAMES = ("images", "summary")
     OUTPUT_IS_LIST = (True, False)
+    OUTPUT_TOOLTIPS = ("All shots in order, with the chosen route's shots replaced.",
+                       "Which shots were replaced, and by which candidate.")
     FUNCTION = "merge"
     CATEGORY = "Shot Planner"
     DESCRIPTION = "Replaces shots that needed a re-render with the best re-render. Skips the branch when nothing failed."
@@ -268,7 +274,8 @@ class ShotConsistencyPrep:
         return {
             "required": {
                 "images": ("IMAGE", {"tooltip": "The shots the critic reviewed."}),
-                "verdicts_json": ("STRING", {"forceInput": True}),
+                "verdicts_json": ("STRING", {"forceInput": True,
+                                             "tooltip": "Shot Critic verdicts_json (consistency route and reference)."}),
             },
             "optional": {
                 "references": ("IMAGE", {"tooltip": "The same reference images given to the critic, if any."}),
@@ -288,6 +295,8 @@ class ShotConsistencyPrep:
     )
     FUNCTION = "prep"
     CATEGORY = "Shot Planner"
+    DESCRIPTION = ("Pairs every shot whose character or product drifted with the shot or reference that "
+                   "shows the correct look, plus the critic's edit instruction, for an image-edit model.")
 
     def prep(self, images, verdicts_json, references=None):
         flat = [img.unsqueeze(0) for batch in images for img in batch]
@@ -322,16 +331,25 @@ class ShotKeepBetter:
     @classmethod
     def INPUT_TYPES(cls):
         return {"required": {
-            "before": ("IMAGE",), "before_verdicts_json": ("STRING", {"forceInput": True}),
-            "after": ("IMAGE",), "after_verdicts_json": ("STRING", {"forceInput": True}),
+            "before": ("IMAGE", {"tooltip": "The shots before the fix (the list the first Shot Critic reviewed)."}),
+            "before_verdicts_json": ("STRING", {"forceInput": True,
+                                                "tooltip": "verdicts_json of the Shot Critic that reviewed 'before'."}),
+            "after": ("IMAGE", {"tooltip": "The same shots after the fix (e.g. Shot Reroll Merge output)."}),
+            "after_verdicts_json": ("STRING", {"forceInput": True,
+                                               "tooltip": "verdicts_json of a second Shot Critic run on 'after'."}),
         }}
 
     INPUT_IS_LIST = True
     RETURN_TYPES = ("IMAGE", "STRING", "STRING")
     RETURN_NAMES = ("images", "verdicts_json", "summary")
     OUTPUT_IS_LIST = (True, False, False)
+    OUTPUT_TOOLTIPS = ("Per shot, the fixed version if it scored at least as well, else the original.",
+                       "Verdicts matching the images that were kept.",
+                       "Which fixes were kept or rejected, with the scores.")
     FUNCTION = "choose"
     CATEGORY = "Shot Planner"
+    DESCRIPTION = ("Never make it worse: keeps each fixed shot only if the critic scores it at least as well "
+                   "as the original (and no worse route).")
 
     def choose(self, before, before_verdicts_json, after, after_verdicts_json):
         b = [img.unsqueeze(0) for batch in before for img in batch]
@@ -346,10 +364,12 @@ class ShotKeepBetter:
             better = (not same and y and y.get("score", 0) >= x.get("score", 0)
                       and SEVERITY.get(y.get("route"), 3) <= SEVERITY.get(x.get("route"), 3))
             if better:
-                out.append(a[i]); shots.append(y)
+                out.append(a[i])
+                shots.append(y)
                 notes.append(f"Shot {i + 1}: fix kept ({x.get('score', '?')} -> {y.get('score', '?')})")
             else:
-                out.append(b[i]); shots.append(x or y)
+                out.append(b[i])
+                shots.append(x or y)
                 if not same:
                     notes.append(f"Shot {i + 1}: fix rejected ({x.get('score', '?')} -> {y.get('score', '?')}), original kept")
         merged = dict(vb, shots=shots)
@@ -366,7 +386,7 @@ class ShotContinuityPrompts:
     @classmethod
     def INPUT_TYPES(cls):
         return {"required": {
-            "shot_list_json": ("STRING", {"forceInput": True}),
+            "shot_list_json": ("STRING", {"forceInput": True, "tooltip": "Shot Planner shot_list_json."}),
             "continuity_note": ("STRING", {"multiline": True, "default": cls.DEFAULT_NOTE,
                                            "tooltip": "Added to every later shot's prompt. Name the fixed details, e.g. "
                                                       "'the barista always wears a black top and black apron'."}),
@@ -375,8 +395,14 @@ class ShotContinuityPrompts:
     RETURN_TYPES = ("STRING", "STRING", "INT")
     RETURN_NAMES = ("first_prompt", "next_prompts", "next_count")
     OUTPUT_IS_LIST = (False, True, False)
+    OUTPUT_TOOLTIPS = ("Image prompt of shot 1, for the text-to-image model.",
+                       "Prompts of shots 2..N with the continuity note added, for the image-edit model "
+                       "(Picture 1 = shot 1).",
+                       "Number of later shots.")
     FUNCTION = "split"
     CATEGORY = "Shot Planner"
+    DESCRIPTION = ("Splits a shot list for consistency-first generation: shot 1 from text, every later shot "
+                   "edited from shot 1 so people, product and place stay the same.")
 
     def split(self, shot_list_json, continuity_note):
         shots = json.loads(shot_list_json or "{}").get("shots", [])
@@ -392,14 +418,19 @@ class ShotJoin:
 
     @classmethod
     def INPUT_TYPES(cls):
-        return {"required": {"first": ("IMAGE",), "rest": ("IMAGE",)}}
+        return {"required": {
+            "first": ("IMAGE", {"tooltip": "Shot 1 (only the first image is used)."}),
+            "rest": ("IMAGE", {"tooltip": "Shots 2..N, as a list or one batch. Resized to shot 1's size if needed."}),
+        }}
 
     INPUT_IS_LIST = True
     RETURN_TYPES = ("IMAGE",)
     RETURN_NAMES = ("images",)
     OUTPUT_IS_LIST = (True,)
+    OUTPUT_TOOLTIPS = ("All shots as a list, one image per shot.",)
     FUNCTION = "join"
     CATEGORY = "Shot Planner"
+    DESCRIPTION = "Joins shot 1 and the later shots into one list of shots, all at shot 1's size."
 
     def join(self, first, rest):
         f = [img.unsqueeze(0) for batch in first for img in batch][:1]
@@ -422,16 +453,25 @@ class ShotSelect:
     @classmethod
     def INPUT_TYPES(cls):
         return {"required": {
-            "images": ("IMAGE",), "verdicts_json": ("STRING", {"forceInput": True}),
-            "route": (["detail", "consistency", "reroll"], {"default": "detail"}),
+            "images": ("IMAGE", {"tooltip": "The shots (or clips) that were reviewed."}),
+            "verdicts_json": ("STRING", {"forceInput": True,
+                                         "tooltip": "Shot Critic or Shot Video QA verdicts_json."}),
+            "route": (["detail", "consistency", "reroll"], {"default": "detail",
+                      "tooltip": "Which shots to pick: those the reviewer sent to this route."}),
         }}
 
     INPUT_IS_LIST = True
     RETURN_TYPES = ("IMAGE", "STRING", "STRING")
     RETURN_NAMES = ("shots", "targets", "summary")
     OUTPUT_IS_LIST = (True, True, False)
+    OUTPUT_TOOLTIPS = ("The picked shots, in shot order. When none match, shot 1 is passed as a placeholder "
+                       "(Shot Reroll Merge then skips the branch, so it never runs).",
+                       "Per picked shot, what the detail fix should look for, e.g. 'logo, text' (SAM 3 prompt).",
+                       "Which shots were picked.")
     FUNCTION = "select"
     CATEGORY = "Shot Planner"
+    DESCRIPTION = ("Picks the shots a reviewer sent to one route, so a fix only touches those; put them back "
+                   "with Shot Reroll Merge set to the same route.")
 
     def select(self, images, verdicts_json, route):
         flat = [img.unsqueeze(0) for batch in images for img in batch]

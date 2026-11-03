@@ -115,12 +115,17 @@ class ShotAnimatic:
         return {
             "required": {
                 "keyframes": ("IMAGE", {"tooltip": "One image per shot (connect the batch output of your sampler chain)."}),
-                "fps": ("INT", {"default": 12, "min": 6, "max": 30}),
-                "width": ("INT", {"default": 960, "min": 256, "max": 1920, "step": 16}),
-                "aspect_ratio": (["from keyframe", "16:9", "9:16", "1:1", "4:5", "2.39:1"], {"default": "from keyframe"}),
+                "fps": ("INT", {"default": 12, "min": 6, "max": 30,
+                                "tooltip": "Frame rate of the animatic. 12 is plenty for a preview."}),
+                "width": ("INT", {"default": 960, "min": 256, "max": 1920, "step": 16,
+                                  "tooltip": "Output width in pixels; height follows the aspect ratio."}),
+                "aspect_ratio": (["from keyframe", "16:9", "9:16", "1:1", "4:5", "2.39:1"],
+                                 {"default": "from keyframe",
+                                  "tooltip": "Frame of the animatic. Keyframes are cropped to it."}),
                 "motion_strength": ("FLOAT", {"default": 0.12, "min": 0.0, "max": 0.5, "step": 0.01,
                                               "tooltip": "How far the camera moves (0 = still frames)."}),
-                "crossfade_frames": ("INT", {"default": 4, "min": 0, "max": 24}),
+                "crossfade_frames": ("INT", {"default": 4, "min": 0, "max": 24,
+                                             "tooltip": "Frames each cut dissolves over (0 = hard cuts)."}),
                 "default_seconds": ("INT", {"default": 3, "min": 1, "max": 20,
                                             "tooltip": "Used when no shot list is connected."}),
             },
@@ -133,6 +138,8 @@ class ShotAnimatic:
     INPUT_IS_LIST = True
     RETURN_TYPES = ("IMAGE", "INT", "FLOAT", "STRING")
     RETURN_NAMES = ("frames", "frame_count", "fps", "timing")
+    OUTPUT_TOOLTIPS = ("All animatic frames as one batch (connect CreateVideo).", "Number of frames.",
+                       "Frame rate (connect CreateVideo fps).", "Length and camera move of every shot.")
     FUNCTION = "build"
     CATEGORY = "Shot Planner"
     DESCRIPTION = "Builds a timed animatic from keyframes, with push-ins, pans and tilts taken from each shot's camera note."
@@ -173,16 +180,22 @@ class ClipStitcher:
         return {
             "required": {
                 "clips": ("IMAGE", {"tooltip": "Frames from your video model. Runs once per shot when fed by Shot Planner lists."}),
-                "fps": ("INT", {"default": 16, "min": 6, "max": 60}),
-                "crossfade_frames": ("INT", {"default": 4, "min": 0, "max": 24}),
-                "trim_to_shot_duration": ("BOOLEAN", {"default": True}),
+                "fps": ("INT", {"default": 16, "min": 6, "max": 60,
+                                "tooltip": "Frame rate of the clips (Wan = 16)."}),
+                "crossfade_frames": ("INT", {"default": 4, "min": 0, "max": 24,
+                                             "tooltip": "Frames each cut dissolves over (0 = hard cuts)."}),
+                "trim_to_shot_duration": ("BOOLEAN", {"default": True,
+                    "tooltip": "Cut each clip to its shot's duration from the shot list. Shots without "
+                               "a duration keep their full clip."}),
             },
-            "optional": {"shot_list_json": ("STRING", {"forceInput": True})},
+            "optional": {"shot_list_json": ("STRING", {"forceInput": True,
+                "tooltip": "Shot Planner plan, for the per-shot durations used by trimming."})},
         }
 
     INPUT_IS_LIST = True
     RETURN_TYPES = ("IMAGE", "INT", "FLOAT")
     RETURN_NAMES = ("frames", "frame_count", "fps")
+    OUTPUT_TOOLTIPS = ("All clips joined as one batch.", "Number of frames.", "Frame rate (connect CreateVideo fps).")
     FUNCTION = "stitch"
     CATEGORY = "Shot Planner"
     DESCRIPTION = "Concatenates one clip per shot, resized to match, trimmed to each shot's duration, with crossfades."
@@ -197,7 +210,8 @@ class ClipStitcher:
         for i, clip in enumerate(clips):
             c = resize_frames(clip.float().cpu(), out_w, out_h)
             if trim and i < len(shots):
-                n = max(2, int(round(float(shots[i].get("duration", 0) or 0) * fps)))
+                secs = float(shots[i].get("duration", 0) or 0)
+                n = max(2, int(round(secs * fps))) if secs > 0 else 0  # no duration: keep the clip
                 if n and len(c) > n:
                     c = c[:n]
             prepared.append(c)

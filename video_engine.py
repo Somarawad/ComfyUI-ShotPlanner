@@ -88,6 +88,8 @@ class ShotVideoEngine:
                        "Which engine ran and the clip lengths.")
     FUNCTION = "run"
     CATEGORY = "Shot Planner/Video"
+    DESCRIPTION = ("Switch between image-to-video engines (local Wan, local MiniMax H3, or an API node). "
+                   "Only the chosen branch runs; the output is always one IMAGE clip per shot.")
 
     def check_lazy_status(self, engine, wan_clips=None, h3_clips=None, api_videos=None, fps_override=None):
         name = needed_input(_first(engine, ENGINES[0]))

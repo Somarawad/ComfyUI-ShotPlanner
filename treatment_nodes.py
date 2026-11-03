@@ -91,7 +91,7 @@ TIP = {
                       "duration.",
     "brand": "Brand name; used as a wordmark when no logo is connected.",
     "client_line": "One line under the title, e.g. \"Spec commercial · 15s · 16:9\".",
-    "director": "Director's name on the cover and closing page.",
+    "director": "Director's name on the cover and closing page. Empty = left off.",
     "logline": "One or two sentences that sell the idea. Empty = built from the shot "
                "list's title and style.",
     "tone_words": "Comma-separated tone words, e.g. \"warm, unhurried, Milanese morning\".",
@@ -123,7 +123,7 @@ def _common_required():
         "brand": ("STRING", {"default": "NOVARA", "tooltip": TIP["brand"]}),
         "client_line": ("STRING", {"default": "Spec commercial · 15s · 16:9",
                                    "tooltip": TIP["client_line"]}),
-        "director": ("STRING", {"default": "Somar Awad", "tooltip": TIP["director"]}),
+        "director": ("STRING", {"default": "", "tooltip": TIP["director"]}),
         "logline": ("STRING", {"default": "", "multiline": True, "tooltip": TIP["logline"]}),
         "tone_words": ("STRING", {"default": "warm, unhurried, Milanese morning",
                                   "tooltip": TIP["tone_words"]}),

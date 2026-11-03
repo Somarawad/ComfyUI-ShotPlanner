@@ -21,7 +21,8 @@ class T(unittest.TestCase):
         self.assertEqual(n.check_lazy_status(["local: Wan"], wan_clips=[None]), ["wan_clips"])
     def test_run_wan(self):
         clips, fps, s = ve.ShotVideoEngine().run(["local: Wan"], wan_clips=[Clip(5), Clip(7)])
-        self.assertEqual((len(clips), fps), (2, 16.0)); self.assertIn("5, 7", s)
+        self.assertEqual((len(clips), fps), (2, 16.0))
+        self.assertIn("5, 7", s)
     def test_api_video(self):
         clips, fps, _ = ve.ShotVideoEngine().run(["api (VIDEO input)"], api_videos=[FakeVideo(4)], fps_override=[0.0])
         self.assertEqual((len(clips[0]), fps), (4, 30.0))
