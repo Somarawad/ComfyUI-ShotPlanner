@@ -22,6 +22,17 @@ ENV_KEYS = {
     "openai": "OPENAI_API_KEY",
     "gemini": "GEMINI_API_KEY",
 }
+# also read, like the video QA and voiceover nodes do (Google's own SDKs use GOOGLE_API_KEY)
+ENV_FALLBACKS = {"gemini": ("GOOGLE_API_KEY",)}
+
+
+def env_key(provider):
+    """API key for provider from the environment (primary variable first, then fallbacks)."""
+    for var in (ENV_KEYS[provider],) + ENV_FALLBACKS.get(provider, ()):
+        value = os.environ.get(var, "").strip()
+        if value:
+            return value
+    return ""
 
 ASPECT_RATIOS = ["16:9", "9:16", "1:1", "4:5", "2.39:1"]
 
@@ -227,7 +238,7 @@ def plan_shots(brief, provider="offline", model="", api_key="", num_shots=6,
     if provider == "offline":
         plan = plan_offline(brief, num_shots, style, aspect_ratio, shot_seconds)
     else:
-        key = (api_key or "").strip() or os.environ.get(ENV_KEYS[provider], "")
+        key = (api_key or "").strip() or env_key(provider)
         if not key:
             raise ShotPlannerError(
                 f"No API key for {provider}. Set the {ENV_KEYS[provider]} environment variable "

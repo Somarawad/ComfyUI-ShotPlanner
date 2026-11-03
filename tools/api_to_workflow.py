@@ -150,7 +150,7 @@ class Builder:
                 list(info.get("output_is_list", [False] * len(info.get("output", []))))
         # unknown node: as many outputs as the highest slot used, typed by their consumers
         used = {}
-        for n, node in self.prompt.items():
+        for node in self.prompt.values():
             cinfo = self.oi.get(node["class_type"])
             for name, v in node["inputs"].items():
                 if is_link(v) and v[0] == api_id:

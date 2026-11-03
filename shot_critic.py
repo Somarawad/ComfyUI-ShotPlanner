@@ -4,15 +4,13 @@ No ComfyUI imports here, so it can be tested on its own."""
 
 import base64
 from concurrent.futures import ThreadPoolExecutor
-import json
-import os
 import re
 import time
 
 try:
-    from .shot_planner import ENV_KEYS, ShotPlannerError, _post_json, extract_json
+    from .shot_planner import ENV_KEYS, ShotPlannerError, _post_json, env_key, extract_json
 except ImportError:  # imported on its own (tests)
-    from shot_planner import ENV_KEYS, ShotPlannerError, _post_json, extract_json
+    from shot_planner import ENV_KEYS, ShotPlannerError, _post_json, env_key, extract_json
 
 CRITIC_PROVIDERS = ["gemini", "anthropic", "openai"]
 
@@ -302,7 +300,7 @@ def critique(images_png, shots=None, checks="", brand_rules="", references_png=N
         raise ShotPlannerError(f"Unknown provider '{provider}'.")
     shots = list(shots or [])
     shots = (shots + [{}] * len(images_png))[:len(images_png)]
-    key = (api_key or "").strip() or os.environ.get(ENV_KEYS[provider], "")
+    key = (api_key or "").strip() or env_key(provider)
     if not key:
         raise ShotPlannerError(f"No API key for {provider}. Set {ENV_KEYS[provider]} or paste a key.")
     refs = list(references_png or [])

@@ -363,7 +363,7 @@ def main():
     rep = Report()
     try:
         mappings = load_pack_mappings()
-    except Exception as e:  # still start ComfyUI so its own import report is shown too
+    except Exception:  # still start ComfyUI so its own import report is shown too
         import traceback
         rep.fail("the pack does not import outside ComfyUI either:\n" + traceback.format_exc(limit=3))
         mappings = {}

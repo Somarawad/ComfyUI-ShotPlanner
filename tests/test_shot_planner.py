@@ -87,6 +87,21 @@ class Tests(unittest.TestCase):
                 sp.plan_shots("A brief.", provider="anthropic")
         self.assertIn("ANTHROPIC_API_KEY", str(cm.exception))
 
+    def test_gemini_reads_google_api_key_too(self):
+        seen = {}
+
+        def fake(req, timeout=0):
+            seen["headers"] = {k.lower(): v for k, v in req.header_items()}
+            return FakeResp({"candidates": [{"content": {"parts": [{"text": json.dumps(REPLY)}]}}]})
+
+        with mock.patch.dict(os.environ, {"GOOGLE_API_KEY": "g-key"}, clear=True), \
+                mock.patch("urllib.request.urlopen", fake):
+            sp.plan_shots("A brief.", provider="gemini", num_shots=2)
+            self.assertEqual(sp.env_key("gemini"), "g-key")
+        self.assertEqual(seen["headers"]["x-goog-api-key"], "g-key")
+        with mock.patch.dict(os.environ, {"GOOGLE_API_KEY": "g", "GEMINI_API_KEY": "primary"}, clear=True):
+            self.assertEqual(sp.env_key("gemini"), "primary")
+
     def test_env_key_used(self):
         with mock.patch.dict(os.environ, {"OPENAI_API_KEY": "env-key"}):
             _, seen = self._run_provider("openai", {"choices": [{"message": {"content": json.dumps(REPLY)}}]})
