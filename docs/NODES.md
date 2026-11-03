@@ -1,4 +1,4 @@
-# Node reference: video stage, voiceover, beat sync, social cuts
+# Node reference: video stage, voiceover, beat sync, social cuts, treatment & pitch deck
 
 Generated from the node definitions (`INPUT_TYPES`, `RETURN_NAMES`, `OUTPUT_TOOLTIPS`), so the tooltip text below is exactly what ComfyUI shows. For the Shot Planner and Ad Assembler nodes see the README.
 
@@ -282,3 +282,136 @@ Makes a 6 s / 15 s cutdown: picks and trims shots and keeps the end card.
 | `frame_count` | INT | Number of frames. |
 | `total_seconds` | FLOAT | Length in seconds including the end card: connect to Ad Audio Mix total_seconds. |
 | `report` | STRING | Which shots were kept and how long it runs. |
+
+## Treatment & Pitch Deck
+
+### Treatment Builder
+
+`TreatmentBuilder` · category **Shot Planner/Treatment** · `INPUT_IS_LIST` (runs once for all shots)
+
+Lays out a director's treatment: cover, idea, mood board, palette, story at a glance, shot-by-shot pages, brand, production notes and closing page.
+
+**Inputs**
+
+| Input | Type | Default | Tooltip |
+|---|---|---|---|
+| `keyframes` | IMAGE |  | Approved keyframes, one still per shot in shot order (after Shot Critic / Detail Fixer). A batch or a list; sizes may differ. |
+| `shot_list_json` | STRING |  | Shot Planner plan: title, style and per-shot description, camera, duration. |
+| `brand` | STRING | `NOVARA` | Brand name; used as a wordmark when no logo is connected. |
+| `client_line` | STRING | `Spec commercial · 15s · 16:9` | One line under the title, e.g. "Spec commercial · 15s · 16:9". |
+| `director` | STRING | `Somar Awad` | Director's name on the cover and closing page. |
+| `logline` | STRING | `""` | One or two sentences that sell the idea. Empty = built from the shot list's title and style. |
+| `tone_words` | STRING | `warm, unhurried, Milanese morning` | Comma-separated tone words, e.g. "warm, unhurried, Milanese morning". |
+| `template` | choice: `editorial dark` / `editorial light` / `agency minimal` | `editorial dark` | editorial dark: full-bleed cinematic, serif. editorial light: warm paper, framed images, big numerals. agency minimal: white Swiss grid, sans headlines, two shots per page. |
+| `page_size` | choice: `A4` / `Letter` | `A4` | A4 (210 x 297 mm) or US Letter (8.5 x 11 in). |
+| `filename_prefix` | STRING | `treatment/treatment` | PDF name inside ComfyUI's output folder (subfolders allowed). |
+| `verdicts_json` *(optional)* | STRING |  | Shot Critic (or Shot Video QA) verdicts: adds QA badges, critic notes and a score chart. All fields optional. |
+| `timing_json` *(optional)* | STRING |  | Ad Timeline timing: real in/out timecodes and the timeline ruler. Without it, shot list durations are used. |
+| `supers_text` *(optional)* | STRING |  | On-screen text as "shot_number \| text" lines (Ad Script From Shots). |
+| `voiceover_text` *(optional)* | STRING |  | VO as "shot_number \| line" lines or one line per shot. |
+| `brand_rules` *(optional)* | STRING | `""` | One rule per line for the brand page. Empty = sensible defaults. |
+| `pipeline_notes` *(optional)* | STRING | `Keyframes: Qwen Image Edit + next-scene LoRA; QA: Shot Critic; Video: Wan` | "Key: value" items separated by ; or new lines, shown on the production notes page. |
+| `logo` *(optional)* | IMAGE |  | Brand logo (first image is used). |
+| `logo_mask` *(optional)* | MASK |  | Logo transparency, e.g. the MASK from Load Image (1 = transparent). |
+| `invert_mask` *(optional)* | BOOLEAN | `False` | Turn on if your mask is 1 where the logo is visible. |
+| `accent_hex` *(optional)* | STRING | `""` | Accent colour, e.g. #C8743A. Empty = picked from the keyframe palette. |
+| `date` *(optional)* | STRING | `""` | Date shown on the documents. Empty = today. |
+
+**Outputs**
+
+| Output | Type | Tooltip |
+|---|---|---|
+| `pdf_path` | STRING | Path of the PDF written to ComfyUI's output folder. |
+| `pages` | IMAGE | Every page as an image, 1240 px wide (connect Preview Image). |
+| `page_count` | INT | Number of pages. |
+
+### Pitch Deck Builder
+
+`PitchDeckBuilder` · category **Shot Planner/Treatment** · `INPUT_IS_LIST` (runs once for all shots)
+
+Builds a 16:9 pitch deck: cover, idea, mood, palette, one slide per shot, timeline and end card.
+
+**Inputs**
+
+| Input | Type | Default | Tooltip |
+|---|---|---|---|
+| `keyframes` | IMAGE |  | Approved keyframes, one still per shot in shot order (after Shot Critic / Detail Fixer). A batch or a list; sizes may differ. |
+| `shot_list_json` | STRING |  | Shot Planner plan: title, style and per-shot description, camera, duration. |
+| `brand` | STRING | `NOVARA` | Brand name; used as a wordmark when no logo is connected. |
+| `client_line` | STRING | `Spec commercial · 15s · 16:9` | One line under the title, e.g. "Spec commercial · 15s · 16:9". |
+| `director` | STRING | `Somar Awad` | Director's name on the cover and closing page. |
+| `logline` | STRING | `""` | One or two sentences that sell the idea. Empty = built from the shot list's title and style. |
+| `tone_words` | STRING | `warm, unhurried, Milanese morning` | Comma-separated tone words, e.g. "warm, unhurried, Milanese morning". |
+| `template` | choice: `editorial dark` / `editorial light` / `agency minimal` | `editorial dark` | editorial dark: full-bleed cinematic, serif. editorial light: warm paper, framed images, big numerals. agency minimal: white Swiss grid, sans headlines, two shots per page. |
+| `resolution` | choice: `1920x1080` / `3840x2160` | `1920x1080` | Slide size in pixels (the PDF page is 13.33 x 7.5 in). |
+| `filename_prefix` | STRING | `treatment/pitch_deck` | PDF name inside ComfyUI's output folder (subfolders allowed). |
+| `verdicts_json` *(optional)* | STRING |  | Shot Critic (or Shot Video QA) verdicts: adds QA badges, critic notes and a score chart. All fields optional. |
+| `timing_json` *(optional)* | STRING |  | Ad Timeline timing: real in/out timecodes and the timeline ruler. Without it, shot list durations are used. |
+| `supers_text` *(optional)* | STRING |  | On-screen text as "shot_number \| text" lines (Ad Script From Shots). |
+| `voiceover_text` *(optional)* | STRING |  | VO as "shot_number \| line" lines or one line per shot. |
+| `brand_rules` *(optional)* | STRING | `""` | One rule per line for the brand page. Empty = sensible defaults. |
+| `pipeline_notes` *(optional)* | STRING | `Keyframes: Qwen Image Edit + next-scene LoRA; QA: Shot Critic; Video: Wan` | "Key: value" items separated by ; or new lines, shown on the production notes page. |
+| `logo` *(optional)* | IMAGE |  | Brand logo (first image is used). |
+| `logo_mask` *(optional)* | MASK |  | Logo transparency, e.g. the MASK from Load Image (1 = transparent). |
+| `invert_mask` *(optional)* | BOOLEAN | `False` | Turn on if your mask is 1 where the logo is visible. |
+| `accent_hex` *(optional)* | STRING | `""` | Accent colour, e.g. #C8743A. Empty = picked from the keyframe palette. |
+| `date` *(optional)* | STRING | `""` | Date shown on the documents. Empty = today. |
+
+**Outputs**
+
+| Output | Type | Tooltip |
+|---|---|---|
+| `pdf_path` | STRING | Path of the PDF written to ComfyUI's output folder. |
+| `slides` | IMAGE | Every slide at full resolution. |
+| `slide_count` | INT | Number of slides. |
+
+### Storyboard Sheet
+
+`StoryboardSheet` · category **Shot Planner/Treatment** · `INPUT_IS_LIST` (runs once for all shots)
+
+Storyboard sheet: numbered panels, camera arrows from the camera field (push-in = frame lines, pan = arrow, tilt = vertical arrow), captions.
+
+**Inputs**
+
+| Input | Type | Default | Tooltip |
+|---|---|---|---|
+| `keyframes` | IMAGE |  | Approved keyframes, one still per shot in shot order (after Shot Critic / Detail Fixer). A batch or a list; sizes may differ. |
+| `shot_list_json` | STRING |  | Shot Planner plan: title, style and per-shot description, camera, duration. |
+| `columns` | INT | `4` | Panels per row. Rows follow from the paper; extra shots go onto further sheets. |
+| `paper` | choice: `A4 landscape` / `A3` / `16:9` | `A4 landscape` | A4 landscape and A3 at 300 dpi; 16:9 at 3840 x 2160. |
+| `save_pdf` | BOOLEAN | `True` | Also write a PDF to the output folder. |
+| `filename_prefix` | STRING | `treatment/storyboard` | PDF name inside ComfyUI's output folder (subfolders allowed). |
+| `timing_json` *(optional)* | STRING |  | Ad Timeline timing: real in/out timecodes and the timeline ruler. Without it, shot list durations are used. |
+| `brand` *(optional)* | STRING | `""` | Brand name; used as a wordmark when no logo is connected. |
+| `date` *(optional)* | STRING | `""` | Date shown on the documents. Empty = today. |
+
+**Outputs**
+
+| Output | Type | Tooltip |
+|---|---|---|
+| `sheet` | IMAGE | The storyboard sheet(s) at print resolution. |
+| `pdf_path` | STRING | Path of the PDF, or empty when save_pdf is off. |
+
+### Palette From Shots
+
+`PaletteFromShots` · category **Shot Planner/Treatment** · `INPUT_IS_LIST` (runs once for all shots)
+
+Extracts a named colour palette from the keyframes (k-means in Lab).
+
+**Inputs**
+
+| Input | Type | Default | Tooltip |
+|---|---|---|---|
+| `keyframes` | IMAGE |  | Approved keyframes, one still per shot in shot order (after Shot Critic / Detail Fixer). A batch or a list; sizes may differ. |
+| `colors` | INT | `6` | Maximum number of swatches (near-identical colours are merged, so you may get fewer). |
+| `accent_hex` *(optional)* | STRING | `""` | Force an accent colour. Empty = the most colourful swatch that is present enough. |
+
+**Outputs**
+
+| Output | Type | Tooltip |
+|---|---|---|
+| `swatches` | IMAGE | Palette card image (1600 x 900). |
+| `palette_json` | STRING | Swatches as JSON: hex, rgb, Lab, name and share of the picture. |
+| `accent_hex` | STRING | Accent colour (connect to Treatment Builder / Pitch Deck Builder accent_hex). |
+| `text_on_accent_hex` | STRING | Black or white text colour that passes WCAG AA on the accent. |
+

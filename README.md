@@ -167,6 +167,101 @@ cd tests
 python -m unittest
 ```
 
+## Treatment & Pitch Deck
+
+The documents an agency sends a client before the shoot, laid out from the pre-production you already have: a **director's treatment** (portrait A4 / US Letter at 300 dpi), a **16:9 pitch deck** (1920×1080 or 3840×2160), a print-ready **storyboard sheet** and a **palette card**, written as multi-page PDFs with Pillow's own PDF writer (no new dependencies), with previews of every page inside ComfyUI.
+
+<p>
+  <img src="examples/treatment_sample/treatment_cover.png" width="32%" alt="Treatment cover, editorial dark">
+  <img src="examples/treatment_sample/treatment_cover_editorial_light.png" width="32%" alt="Treatment cover, editorial light">
+  <img src="examples/treatment_sample/treatment_cover_agency_minimal.png" width="32%" alt="Treatment cover, agency minimal">
+</p>
+<p>
+  <img src="examples/treatment_sample/treatment_idea.png" width="24%" alt="The idea">
+  <img src="examples/treatment_sample/treatment_mood.png" width="24%" alt="Mood board">
+  <img src="examples/treatment_sample/treatment_palette.png" width="24%" alt="Palette">
+  <img src="examples/treatment_sample/treatment_story.png" width="24%" alt="Story at a glance">
+</p>
+<p>
+  <img src="examples/treatment_sample/treatment_shots-1.png" width="24%" alt="Shot by shot, editorial dark">
+  <img src="examples/treatment_sample/treatment_shots_editorial_light.png" width="24%" alt="Shot by shot, editorial light">
+  <img src="examples/treatment_sample/treatment_shots_agency_minimal.png" width="24%" alt="Shot by shot, agency minimal">
+  <img src="examples/treatment_sample/treatment_notes.png" width="24%" alt="Production notes">
+</p>
+<p>
+  <img src="examples/treatment_sample/deck_cover.png" width="49%" alt="Pitch deck cover, editorial light">
+  <img src="examples/treatment_sample/deck_shot-2.png" width="49%" alt="Pitch deck shot slide">
+  <img src="examples/treatment_sample/deck_palette.png" width="49%" alt="Pitch deck palette slide">
+  <img src="examples/treatment_sample/deck_timeline.png" width="49%" alt="Pitch deck timeline slide">
+</p>
+<img src="examples/treatment_sample/storyboard.png" width="100%" alt="Storyboard sheet with camera arrows">
+
+All sample frames are procedurally generated (gradients and simple shapes). Sample PDFs: [treatment](examples/treatment_sample/treatment_editorial_dark_A4.pdf) · [pitch deck](examples/treatment_sample/pitch_deck_editorial_light_1920.pdf) · [storyboard](examples/treatment_sample/storyboard_A4.pdf). Rebuild them with `python examples/treatment_sample/make_sample.py`.
+
+### Nodes (category Shot Planner/Treatment)
+
+| Node | What it does | Outputs |
+|---|---|---|
+| **Treatment Builder** | Director's treatment PDF, A4 or Letter, 300 dpi. | `pdf_path`, `pages` (previews 1240 px wide), `page_count` |
+| **Pitch Deck Builder** | 16:9 deck PDF at 1920×1080 or 3840×2160 (13.33 × 7.5 in pages). | `pdf_path`, `slides`, `slide_count` |
+| **Storyboard Sheet** | Numbered panels in a grid of `columns`, on A4 landscape, A3 or 16:9; camera arrows from the camera field (push-in = concentric frame lines, pull-out = frames with outward arrows, pan / track = horizontal arrow, tilt / crane = vertical arrow, orbit = arc, static / handheld = none); caption under each panel. Extra shots flow onto further sheets. | `sheet`, `pdf_path` (empty if `save_pdf` is off) |
+| **Palette From Shots** | k-means in CIE Lab on downsampled keyframes, near-duplicates merged (ΔE < 12), sorted by share, named ("espresso brown", "dusty rose"…). | `swatches` (card image), `palette_json`, `accent_hex`, `text_on_accent_hex` (WCAG AA) |
+
+Treatment Builder and Pitch Deck Builder share these inputs:
+
+- **Required:** `keyframes` (one still per shot, batch or list), `shot_list_json`, `brand`, `client_line`, `director`, `logline` (empty = built from the shot list), `tone_words`, `template`, plus `page_size` / `resolution` and `filename_prefix`.
+- **Optional:** `verdicts_json` (Shot Critic or Shot Video QA: QA badges, critic notes, score chart), `timing_json` (Ad Timeline: real timecodes and the ruler), `supers_text` and `voiceover_text` (Ad Script From Shots), `brand_rules` (one per line), `pipeline_notes` (`Key: value; Key: value`), `logo` + `logo_mask`, `accent_hex` (empty = derived from the palette), `date` (empty = today).
+
+Every optional input can be left out: pages adapt (placeholders for missing frames, durations from the shot list, default brand rules) instead of failing.
+
+### Pages
+
+| # | Treatment page | Deck slide |
+|---|---|---|
+| 1 | **Cover**: hero keyframe (best critic score, else the first), brand or logo, title fitted to its box, client line, director, date, running time | Cover |
+| 2 | **The idea**: logline, tone words, a one-paragraph approach written from the shot list with plain template sentences (no LLM), a supporting frame | The idea |
+| 3 | **Mood**: asymmetric grid of whole keyframes and detail crops around each frame's salient regions | Mood |
+| 4 | **Palette**: share bar, swatches with name, hex, RGB, share; accent marked | Palette (full-bleed stripes) |
+| 5 | **Story at a glance**: timing ruler with picture / supers / VO lanes, filmstrip of every shot with timecode | One slide per shot: large frame and notes |
+| 6+ | **Shot by shot**: 3 shots per page (2 in agency minimal): frame, number, in/out timecode, duration, camera, action, on-screen text, VO line, critic badge and notes | Timeline: ruler and duration-proportional strip |
+| … | **Brand**: logo on light and dark (recoloured automatically when it would not read), clear-space marks, numbered rules, type and accent spec | End card |
+| … | **Production notes**: format, pipeline, look, typefaces, per-shot QA chart, production shot table | |
+| last | **Closing** | |
+
+Page count: treatment = 8 + ⌈shots / 3⌉ (agency minimal: 8 + ⌈shots / 2⌉), so 6 shots → 10 pages (11 in agency minimal), 12 shots → 12 (14). Deck = 6 + shots slides.
+
+### Templates
+
+They differ in layout and type scale, not only colour:
+
+| Template | Look | Cover | Shot pages | Type |
+|---|---|---|---|---|
+| `editorial dark` | near-black, warm ivory text | full-bleed hero that dissolves into the page | frame left, notes right | Instrument Serif display, 66 pt cover title |
+| `editorial light` | warm paper, ink text | framed hero, large title below | frames alternate left and right | big italic section numerals (78 pt), palette as cards |
+| `agency minimal` | white, Swiss grid | split: text column + full-height image | two per page, scope-cropped frames with three text columns | Inter SemiBold headlines, smaller 1.25 scale, wider margins |
+
+### Typography and layout
+
+- Everything is laid out in points on a 12-column grid with per-template margins and gutters; every baseline sits on a 3 pt grid (4 pt on slides) and leadings are whole multiples of it.
+- Display: [Instrument Serif](https://github.com/Instrument/instrument-serif); text: [Inter](https://github.com/rsms/inter) (variable, weight and optical-size axes). Both SIL OFL 1.1, in `fonts/` with their licences; DejaVu, then PIL's default font, are the fallbacks.
+- Hyphen-free line breaking, widow control (no single word on the last line of a paragraph when it can be avoided), balanced display titles that shrink to fit, and an ellipsis only when the minimum size still doesn't fit.
+- Images are cropped, never stretched, around a focal point from a simple saliency measure (local detail and brightness with a soft centre prior).
+- Accent text is lightened or darkened until it reaches WCAG 3:1 on the page; text on accent fills reaches AA 4.5:1.
+
+### Suggested chain
+
+```
+Shot Planner ─► keyframes ─► Shot Critic ─► (Detail Fixer) ─► Palette From Shots ─► accent_hex
+                                   │ verdicts_json                    │
+                                   ▼                                  ▼
+Ad Script From Shots ─► supers / VO ───────────────►  Treatment Builder / Pitch Deck Builder / Storyboard Sheet
+Ad Timeline ─► timing_json ────────────────────────►        ▲ shot_list_json, logo, brand info
+```
+
+Connect `pages` / `slides` / `sheet` to Preview Image to check the layout before opening the PDFs in `output/treatment/`.
+
+Tests (no GPU, no network): `tests/test_palette.py` and `tests/test_treatment.py` cover palette extraction and Lab merging, AA contrast picking, wrapping and widow control, title fitting, focal-crop bounds, timecodes, the camera-arrow mapping, page counts, PDFs re-read with Pillow's PDF parser (page count and metadata), node return types with a mocked `folder_paths`, and render every page of every template with 1, 4 and 12 shots, missing optional inputs and very long text, checking that no two elements overlap and nothing leaves the page.
+
 ## License
 
 MIT

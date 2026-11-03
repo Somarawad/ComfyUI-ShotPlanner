@@ -10,14 +10,18 @@ if __package__:  # loaded by ComfyUI as a package (skipped when test runners imp
     from .voice_nodes import VOICE_NODE_CLASS_MAPPINGS, VOICE_NODE_DISPLAY_NAME_MAPPINGS
     from .beat_nodes import BEAT_NODE_CLASS_MAPPINGS, BEAT_NODE_DISPLAY_NAME_MAPPINGS
     from .reframe_nodes import REFRAME_NODE_CLASS_MAPPINGS, REFRAME_NODE_DISPLAY_NAME_MAPPINGS
+    from .treatment_nodes import (TREATMENT_NODE_CLASS_MAPPINGS,
+                                  TREATMENT_NODE_DISPLAY_NAME_MAPPINGS)
 
     NODE_CLASS_MAPPINGS = {**NODE_CLASS_MAPPINGS, **VIDEO_NODE_CLASS_MAPPINGS,
                            **VIDEO_QA_NODE_CLASS_MAPPINGS, **VOICE_NODE_CLASS_MAPPINGS,
-                           **BEAT_NODE_CLASS_MAPPINGS, **REFRAME_NODE_CLASS_MAPPINGS}
+                           **BEAT_NODE_CLASS_MAPPINGS, **REFRAME_NODE_CLASS_MAPPINGS,
+                           **TREATMENT_NODE_CLASS_MAPPINGS}
     NODE_DISPLAY_NAME_MAPPINGS = {**NODE_DISPLAY_NAME_MAPPINGS, **VIDEO_NODE_DISPLAY_NAME_MAPPINGS,
                                   **VIDEO_QA_NODE_DISPLAY_NAME_MAPPINGS,
                                   **VOICE_NODE_DISPLAY_NAME_MAPPINGS,
                                   **BEAT_NODE_DISPLAY_NAME_MAPPINGS,
-                                  **REFRAME_NODE_DISPLAY_NAME_MAPPINGS}
+                                  **REFRAME_NODE_DISPLAY_NAME_MAPPINGS,
+                                  **TREATMENT_NODE_DISPLAY_NAME_MAPPINGS}
 
 __all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS"]
