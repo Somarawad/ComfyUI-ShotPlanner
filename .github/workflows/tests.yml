@@ -1,0 +1,39 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  unittest:
+    name: unit tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: .github/workflows/tests.yml
+
+      - name: Install CPU torch, numpy and Pillow (the only packages the pack imports; all ship with ComfyUI)
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install numpy pillow pyflakes
+
+      - name: Unit tests
+        working-directory: tests
+        run: python -m unittest discover -v
+
+      - name: Pyflakes
+        if: matrix.python-version == '3.12'
+        run: python -m pyflakes *.py tools/*.py tests/*.py examples/treatment_sample/*.py

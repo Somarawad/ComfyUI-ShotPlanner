@@ -1,0 +1,587 @@
+{
+ "upm": {
+  "class_type": "UpscaleModelLoader",
+  "inputs": {
+   "model_name": "4x-UltraSharp.pth"
+  }
+ },
+ "sam": {
+  "class_type": "CheckpointLoaderSimple",
+  "inputs": {
+   "ckpt_name": "sam3.1_multiplex_fp16.safetensors"
+  }
+ },
+ "t1": {
+  "class_type": "CLIPTextEncode",
+  "inputs": {
+   "clip": [
+    "sam",
+    1
+   ],
+   "text": "logo"
+  }
+ },
+ "t2": {
+  "class_type": "CLIPTextEncode",
+  "inputs": {
+   "clip": [
+    "sam",
+    1
+   ],
+   "text": "text"
+  }
+ },
+ "refT": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "novara_logo.png"
+  }
+ },
+ "refR": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "novara_logo_white.png"
+  }
+ },
+ "gg": {
+  "class_type": "LoaderGGUF",
+  "inputs": {
+   "gguf_name": "gguf\\Qwen-Image-Edit-2509-Q3_K_S.gguf"
+  }
+ },
+ "lo": {
+  "class_type": "LoraLoaderModelOnly",
+  "inputs": {
+   "model": [
+    "gg",
+    0
+   ],
+   "lora_name": "qwen-image-edit-lightning\\Qwen-Image-Edit-2509-Lightning-4steps-V1.0-bf16.safetensors",
+   "strength_model": 1
+  }
+ },
+ "ms": {
+  "class_type": "ModelSamplingAuraFlow",
+  "inputs": {
+   "model": [
+    "lo",
+    0
+   ],
+   "shift": 3
+  }
+ },
+ "cn": {
+  "class_type": "CFGNorm",
+  "inputs": {
+   "model": [
+    "ms",
+    0
+   ],
+   "strength": 1
+  }
+ },
+ "clip": {
+  "class_type": "CLIPLoader",
+  "inputs": {
+   "clip_name": "qwen\\qwen_2.5_vl_7b_fp8_scaled.safetensors",
+   "type": "qwen_image"
+  }
+ },
+ "vae": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "qwen_image_vae.safetensors"
+  }
+ },
+ "qn": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "clip": [
+    "clip",
+    0
+   ],
+   "vae": [
+    "vae",
+    0
+   ],
+   "prompt": ""
+  }
+ },
+ "d1": {
+  "class_type": "SAM3_Detect",
+  "inputs": {
+   "model": [
+    "sam",
+    0
+   ],
+   "image": [
+    "up2",
+    0
+   ],
+   "threshold": 0.35,
+   "refine_iterations": 2,
+   "individual_masks": false,
+   "conditioning": [
+    "t1",
+    0
+   ]
+  }
+ },
+ "d2": {
+  "class_type": "SAM3_Detect",
+  "inputs": {
+   "model": [
+    "sam",
+    0
+   ],
+   "image": [
+    "up2",
+    0
+   ],
+   "threshold": 0.35,
+   "refine_iterations": 2,
+   "individual_masks": false,
+   "conditioning": [
+    "t2",
+    0
+   ]
+  }
+ },
+ "det": {
+  "class_type": "DetailDetect",
+  "inputs": {
+   "image": [
+    "up2",
+    0
+   ],
+   "mode": "sam3",
+   "target": "",
+   "max_items": 3,
+   "manual_boxes": "",
+   "bboxes": [
+    "d1",
+    1
+   ],
+   "bboxes_2": [
+    "d2",
+    1
+   ],
+   "merge_touching": true
+  }
+ },
+ "crop": {
+  "class_type": "DetailCrop",
+  "inputs": {
+   "image": [
+    "up2",
+    0
+   ],
+   "boxes_json": [
+    "det",
+    0
+   ],
+   "which": 0,
+   "context": 1.4,
+   "size": 1024
+  }
+ },
+ "er": {
+  "class_type": "DetailPrepareLogo",
+  "inputs": {
+   "crop": [
+    "crop",
+    0
+   ],
+   "crop_info": [
+    "crop",
+    1
+   ],
+   "reference": [
+    "refT",
+    0
+   ],
+   "reference_mask": [
+    "refT",
+    1
+   ],
+   "fit": "contain",
+   "scale": 1,
+   "opacity": 0,
+   "erase_original": true,
+   "erase_grow": 0.35
+  }
+ },
+ "gd": {
+  "class_type": "DetailPrepareLogo",
+  "inputs": {
+   "crop": [
+    "crop",
+    0
+   ],
+   "crop_info": [
+    "crop",
+    1
+   ],
+   "reference": [
+    "refT",
+    0
+   ],
+   "reference_mask": [
+    "refT",
+    1
+   ],
+   "fit": "contain",
+   "scale": 1,
+   "opacity": 0.6,
+   "erase_original": true,
+   "erase_grow": 0.35
+  }
+ },
+ "q": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "clip": [
+    "clip",
+    0
+   ],
+   "vae": [
+    "vae",
+    0
+   ],
+   "image1": [
+    "er",
+    0
+   ],
+   "image2": [
+    "refR",
+    0
+   ],
+   "prompt": "Print the exact logo from Picture 2 on the blank surface in the center of Picture 1 (a paper cup, apron, window or sign): the word NOVARA with MILANO underneath, same font and proportions as Picture 2, crisp black ink, following the surface's curve, perspective and lighting. Keep everything else unchanged."
+  }
+ },
+ "enc": {
+  "class_type": "VAEEncode",
+  "inputs": {
+   "pixels": [
+    "gd",
+    0
+   ],
+   "vae": [
+    "vae",
+    0
+   ]
+  }
+ },
+ "gm": {
+  "class_type": "GrowMask",
+  "inputs": {
+   "mask": [
+    "crop",
+    2
+   ],
+   "expand": 48,
+   "tapered_corners": true
+  }
+ },
+ "nm": {
+  "class_type": "SetLatentNoiseMask",
+  "inputs": {
+   "samples": [
+    "enc",
+    0
+   ],
+   "mask": [
+    "gm",
+    0
+   ]
+  }
+ },
+ "qk": {
+  "class_type": "KSampler",
+  "inputs": {
+   "model": [
+    "cn",
+    0
+   ],
+   "positive": [
+    "q",
+    0
+   ],
+   "negative": [
+    "qn",
+    0
+   ],
+   "latent_image": [
+    "nm",
+    0
+   ],
+   "seed": 7,
+   "steps": 4,
+   "cfg": 1,
+   "sampler_name": "euler",
+   "scheduler": "simple",
+   "denoise": 0.75
+  }
+ },
+ "qd": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "qk",
+    0
+   ],
+   "vae": [
+    "vae",
+    0
+   ]
+  }
+ },
+ "pb": {
+  "class_type": "DetailPasteBack",
+  "inputs": {
+   "image": [
+    "up2",
+    0
+   ],
+   "fixed_crops": [
+    "qd",
+    0
+   ],
+   "crop_info": [
+    "crop",
+    1
+   ],
+   "blend_area": "box",
+   "expand": 0.3,
+   "feather": 16,
+   "blend_mask": [
+    "gm",
+    0
+   ],
+   "match_color": false
+  }
+ },
+ "i1": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "Pipeline8/generated_00001_.png [output]"
+  }
+ },
+ "i2": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "Pipeline8/generated_00002_.png [output]"
+  }
+ },
+ "i3": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "Pipeline8/generated_00003_.png [output]"
+  }
+ },
+ "i4": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "Pipeline8/generated_00004_.png [output]"
+  }
+ },
+ "b1": {
+  "class_type": "ImageBatch",
+  "inputs": {
+   "image1": [
+    "i1",
+    0
+   ],
+   "image2": [
+    "i2",
+    0
+   ]
+  }
+ },
+ "b2": {
+  "class_type": "ImageBatch",
+  "inputs": {
+   "image1": [
+    "b1",
+    0
+   ],
+   "image2": [
+    "i3",
+    0
+   ]
+  }
+ },
+ "b3": {
+  "class_type": "ImageBatch",
+  "inputs": {
+   "image1": [
+    "b2",
+    0
+   ],
+   "image2": [
+    "i4",
+    0
+   ]
+  }
+ },
+ "cr1": {
+  "class_type": "ShotCritic",
+  "inputs": {
+   "images": [
+    "b3",
+    0
+   ],
+   "provider": "gemini",
+   "model": "",
+   "pass_score": 7,
+   "input_type": "images (one per shot)",
+   "checks": "Anatomy: hands, fingers, limbs, eyes, faces (no extra or fused fingers, no warped faces)\nText and logos: spelled exactly as required, clean shapes, no gibberish lettering\nMatches the shot: subject, action, framing and camera described in the shot's prompt\nContinuity: same characters, wardrobe, product and location look across shots\nArtifacts: melted objects, duplicated people, broken perspective, obvious AI smears",
+   "brand_rules": "Brand: NOVARA, a Milan espresso brand. Story of the 4 shots: 1 espresso pouring from the machine; 2 the barista hands a white NOVARA paper cup to the customer; 3 close-up, the customer sips and smiles; 4 the customer walks out onto a sunny Milan street with the cup. Any cup must be white with NOVARA printed in black capitals, spelled exactly. The customer (young woman, brown hair, camel coat) must look the same in shots 2, 3 and 4. Any NOVARA text anywhere in a shot (cups, shop signs, menus, awnings) must be spelled exactly N-O-V-A-R-A; a misspelled or garbled shop sign is a detail issue with target 'shop sign'.",
+   "candidates": 1,
+   "reviews": 3,
+   "seed": 1
+  }
+ },
+ "sel": {
+  "class_type": "ShotSelect",
+  "inputs": {
+   "images": [
+    "b3",
+    0
+   ],
+   "verdicts_json": [
+    "cr1",
+    2
+   ],
+   "route": "detail"
+  }
+ },
+ "up": {
+  "class_type": "ImageUpscaleWithModel",
+  "inputs": {
+   "upscale_model": [
+    "upm",
+    0
+   ],
+   "image": [
+    "sel",
+    0
+   ]
+  }
+ },
+ "up2": {
+  "class_type": "ImageScaleBy",
+  "inputs": {
+   "image": [
+    "up",
+    0
+   ],
+   "upscale_method": "lanczos",
+   "scale_by": 0.375
+  }
+ },
+ "mgD": {
+  "class_type": "ShotRerollMerge",
+  "inputs": {
+   "images": [
+    "b3",
+    0
+   ],
+   "verdicts_json": [
+    "cr1",
+    2
+   ],
+   "route": "detail",
+   "rerolled": [
+    "pb",
+    0
+   ]
+  }
+ },
+ "cr2": {
+  "class_type": "ShotCritic",
+  "inputs": {
+   "images": [
+    "mgD",
+    0
+   ],
+   "provider": "gemini",
+   "model": "",
+   "pass_score": 7,
+   "input_type": "images (one per shot)",
+   "checks": "Anatomy: hands, fingers, limbs, eyes, faces (no extra or fused fingers, no warped faces)\nText and logos: spelled exactly as required, clean shapes, no gibberish lettering\nMatches the shot: subject, action, framing and camera described in the shot's prompt\nContinuity: same characters, wardrobe, product and location look across shots\nArtifacts: melted objects, duplicated people, broken perspective, obvious AI smears",
+   "brand_rules": "Brand: NOVARA, a Milan espresso brand. Story of the 4 shots: 1 espresso pouring from the machine; 2 the barista hands a white NOVARA paper cup to the customer; 3 close-up, the customer sips and smiles; 4 the customer walks out onto a sunny Milan street with the cup. Any cup must be white with NOVARA printed in black capitals, spelled exactly. The customer (young woman, brown hair, camel coat) must look the same in shots 2, 3 and 4. Any NOVARA text anywhere in a shot (cups, shop signs, menus, awnings) must be spelled exactly N-O-V-A-R-A; a misspelled or garbled shop sign is a detail issue with target 'shop sign'.",
+   "candidates": 1,
+   "reviews": 3,
+   "seed": 1
+  }
+ },
+ "kb": {
+  "class_type": "ShotKeepBetter",
+  "inputs": {
+   "before": [
+    "b3",
+    0
+   ],
+   "before_verdicts_json": [
+    "cr1",
+    2
+   ],
+   "after": [
+    "mgD",
+    0
+   ],
+   "after_verdicts_json": [
+    "cr2",
+    2
+   ]
+  }
+ },
+ "s1": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "images": [
+    "cr1",
+    1
+   ],
+   "filename_prefix": "SpecAd/sheet_v3"
+  }
+ },
+ "s3": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "images": [
+    "kb",
+    0
+   ],
+   "filename_prefix": "SpecAd/final_v3"
+  }
+ },
+ "p1": {
+  "class_type": "PreviewAny",
+  "inputs": {
+   "source": [
+    "cr1",
+    0
+   ]
+  }
+ },
+ "p2": {
+  "class_type": "PreviewAny",
+  "inputs": {
+   "source": [
+    "sel",
+    2
+   ]
+  }
+ },
+ "p4": {
+  "class_type": "PreviewAny",
+  "inputs": {
+   "source": [
+    "kb",
+    2
+   ]
+  }
+ }
+}

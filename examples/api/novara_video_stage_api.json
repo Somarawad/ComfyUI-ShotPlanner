@@ -1,0 +1,574 @@
+{
+ "um": {
+  "class_type": "UNETLoader",
+  "inputs": {
+   "unet_name": "Wan2_1-I2V-ATI-14B_fp8_e4m3fn.safetensors",
+   "weight_dtype": "default"
+  }
+ },
+ "lo": {
+  "class_type": "LoraLoaderModelOnly",
+  "inputs": {
+   "model": [
+    "um",
+    0
+   ],
+   "lora_name": "Wan21_CausVid_14B_T2V_lora_rank32281%29.safetensors",
+   "strength_model": 0.7
+  }
+ },
+ "ms": {
+  "class_type": "ModelSamplingSD3",
+  "inputs": {
+   "model": [
+    "lo",
+    0
+   ],
+   "shift": 8
+  }
+ },
+ "cl": {
+  "class_type": "CLIPLoader",
+  "inputs": {
+   "clip_name": "umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+   "type": "wan",
+   "device": "default"
+  }
+ },
+ "va": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "Wan2_1_VAE_fp32.safetensors"
+  }
+ },
+ "cvl": {
+  "class_type": "CLIPVisionLoader",
+  "inputs": {
+   "clip_name": "clip_vision_h.safetensors"
+  }
+ },
+ "neg": {
+  "class_type": "CLIPTextEncode",
+  "inputs": {
+   "clip": [
+    "cl",
+    0
+   ],
+   "text": "morphing, distorted face, extra fingers, warped text, flicker, blurry, static, low quality, jitter"
+  }
+ },
+ "lw": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "novara_logo_white_transparent.png"
+  }
+ },
+ "i1": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "SpecAd/final_v3_00001_.png [output]"
+  }
+ },
+ "i2": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "SpecAd/final_v3_00002_.png [output]"
+  }
+ },
+ "i3": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "SpecAd/final_v3_00003_.png [output]"
+  }
+ },
+ "i4": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "SpecAd/final_v3_00004_.png [output]"
+  }
+ },
+ "b1": {
+  "class_type": "ImageBatch",
+  "inputs": {
+   "image1": [
+    "i2",
+    0
+   ],
+   "image2": [
+    "i3",
+    0
+   ]
+  }
+ },
+ "b2": {
+  "class_type": "ImageBatch",
+  "inputs": {
+   "image1": [
+    "b1",
+    0
+   ],
+   "image2": [
+    "i4",
+    0
+   ]
+  }
+ },
+ "jn": {
+  "class_type": "ShotJoin",
+  "inputs": {
+   "first": [
+    "i1",
+    0
+   ],
+   "rest": [
+    "b2",
+    0
+   ]
+  }
+ },
+ "sc": {
+  "class_type": "ImageScale",
+  "inputs": {
+   "image": [
+    "jn",
+    0
+   ],
+   "upscale_method": "lanczos",
+   "width": 832,
+   "height": 480,
+   "crop": "center"
+  }
+ },
+ "pl": {
+  "class_type": "CR Prompt List",
+  "inputs": {
+   "prepend_text": "",
+   "multiline_text": "Thick golden espresso pours steadily from the machine spout into the small glass cup, the cup fills and rich crema swirls and rises, wisps of steam curl upward, slow dolly push-in toward the cup, warm morning window light, cinematic\nThe barista hands the white NOVARA paper cup across the counter, the young woman in the camel coat takes it with both hands and smiles at the barista, gentle handheld camera, warm cafe light, natural motion\nA young woman with brown wavy hair in a camel coat slowly sips espresso from a white paper cup, lowers it and smiles warmly, soft morning window light, subtle slow push-in, natural motion\nThe young woman in the camel coat walks toward the camera along a sunny Milan street holding a white paper cup and takes a sip, people walking in the background, smooth backward tracking shot, natural motion",
+   "append_text": "",
+   "start_index": 0,
+   "max_rows": 4
+  }
+ },
+ "pos": {
+  "class_type": "CLIPTextEncode",
+  "inputs": {
+   "clip": [
+    "cl",
+    0
+   ],
+   "text": [
+    "pl",
+    0
+   ]
+  }
+ },
+ "cve": {
+  "class_type": "CLIPVisionEncode",
+  "inputs": {
+   "clip_vision": [
+    "cvl",
+    0
+   ],
+   "image": [
+    "sc",
+    0
+   ],
+   "crop": "none"
+  }
+ },
+ "wi": {
+  "class_type": "WanImageToVideo",
+  "inputs": {
+   "positive": [
+    "pos",
+    0
+   ],
+   "negative": [
+    "neg",
+    0
+   ],
+   "vae": [
+    "va",
+    0
+   ],
+   "width": 832,
+   "height": 480,
+   "length": 65,
+   "batch_size": 1,
+   "clip_vision_output": [
+    "cve",
+    0
+   ],
+   "start_image": [
+    "sc",
+    0
+   ]
+  }
+ },
+ "ks": {
+  "class_type": "KSampler",
+  "inputs": {
+   "model": [
+    "ms",
+    0
+   ],
+   "seed": 11,
+   "steps": 6,
+   "cfg": 1,
+   "sampler_name": "uni_pc",
+   "scheduler": "simple",
+   "positive": [
+    "wi",
+    0
+   ],
+   "negative": [
+    "wi",
+    1
+   ],
+   "latent_image": [
+    "wi",
+    2
+   ],
+   "denoise": 1
+  }
+ },
+ "de": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "ks",
+    0
+   ],
+   "vae": [
+    "va",
+    0
+   ]
+  }
+ },
+ "eng": {
+  "class_type": "ShotVideoEngine",
+  "inputs": {
+   "engine": "local: Wan",
+   "wan_clips": [
+    "de",
+    0
+   ],
+   "fps_override": 0
+  }
+ },
+ "qa": {
+  "class_type": "ShotVideoQA",
+  "inputs": {
+   "clips": [
+    "eng",
+    0
+   ],
+   "keyframes": [
+    "sc",
+    0
+   ],
+   "checks": "Product shape and label stay identical.\nNo extra fingers.\nFaces stay the same person.\nNo melting or morphing objects.",
+   "pass_score": 7,
+   "use_llm": true,
+   "provider": "gemini",
+   "model": "",
+   "frames_per_clip": 6,
+   "seed": 5,
+   "brand_rules": "Brand: NOVARA espresso. The cup must stay white with NOVARA in black capitals and must not melt, warp or change shape. The woman (brown wavy hair, camel coat) must keep the same face for the whole clip. No extra fingers, no morphing hands.",
+   "motion_prompts": [
+    "pl",
+    0
+   ]
+  }
+ },
+ "rs": {
+  "class_type": "ShotSelect",
+  "inputs": {
+   "images": [
+    "ball",
+    0
+   ],
+   "verdicts_json": [
+    "qa",
+    2
+   ],
+   "route": "reroll"
+  }
+ },
+ "rsc": {
+  "class_type": "ImageScale",
+  "inputs": {
+   "image": [
+    "rs",
+    0
+   ],
+   "upscale_method": "lanczos",
+   "width": 832,
+   "height": 480,
+   "crop": "center"
+  }
+ },
+ "rpos": {
+  "class_type": "CLIPTextEncode",
+  "inputs": {
+   "clip": [
+    "cl",
+    0
+   ],
+   "text": [
+    "qa",
+    4
+   ]
+  }
+ },
+ "rcve": {
+  "class_type": "CLIPVisionEncode",
+  "inputs": {
+   "clip_vision": [
+    "cvl",
+    0
+   ],
+   "image": [
+    "rsc",
+    0
+   ],
+   "crop": "none"
+  }
+ },
+ "rwi": {
+  "class_type": "WanImageToVideo",
+  "inputs": {
+   "positive": [
+    "rpos",
+    0
+   ],
+   "negative": [
+    "neg",
+    0
+   ],
+   "vae": [
+    "va",
+    0
+   ],
+   "width": 832,
+   "height": 480,
+   "length": 65,
+   "batch_size": 1,
+   "clip_vision_output": [
+    "rcve",
+    0
+   ],
+   "start_image": [
+    "rsc",
+    0
+   ]
+  }
+ },
+ "rks": {
+  "class_type": "KSampler",
+  "inputs": {
+   "model": [
+    "ms",
+    0
+   ],
+   "seed": [
+    "qa",
+    5
+   ],
+   "steps": 6,
+   "cfg": 1,
+   "sampler_name": "uni_pc",
+   "scheduler": "simple",
+   "positive": [
+    "rwi",
+    0
+   ],
+   "negative": [
+    "rwi",
+    1
+   ],
+   "latent_image": [
+    "rwi",
+    2
+   ],
+   "denoise": 1
+  }
+ },
+ "rde": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "rks",
+    0
+   ],
+   "vae": [
+    "va",
+    0
+   ]
+  }
+ },
+ "mg": {
+  "class_type": "ClipRerollMerge",
+  "inputs": {
+   "clips": [
+    "eng",
+    0
+   ],
+   "verdicts_json": [
+    "qa",
+    2
+   ],
+   "rerolled": [
+    "rde",
+    0
+   ]
+  }
+ },
+ "fps": {
+  "class_type": "ClipResampleFPS",
+  "inputs": {
+   "clips": [
+    "mg",
+    0
+   ],
+   "source_fps": [
+    "eng",
+    1
+   ],
+   "target_fps": 24,
+   "method": "blend"
+  }
+ },
+ "tl": {
+  "class_type": "AdTimeline",
+  "inputs": {
+   "shots": [
+    "fps",
+    0
+   ],
+   "fps": 24,
+   "width": 1920,
+   "aspect_ratio": "16:9",
+   "transition": "crossfade",
+   "transition_frames": 10,
+   "ken_burns": 0,
+   "durations": "3.5, 4, 4, 4"
+  }
+ },
+ "ec": {
+  "class_type": "AdEndCard",
+  "inputs": {
+   "frames": [
+    "tl",
+    0
+   ],
+   "tagline": "Slow down. Sip.",
+   "cta": "novara.it",
+   "background": "blurred last frame",
+   "bg_color": "#111111",
+   "duration_s": 3,
+   "fps": 24,
+   "logo_scale": 0.35,
+   "fade_in_frames": 12,
+   "logo": [
+    "lw",
+    0
+   ],
+   "logo_mask": [
+    "lw",
+    1
+   ]
+  }
+ },
+ "su": {
+  "class_type": "AdSupers",
+  "inputs": {
+   "frames": [
+    "ec",
+    0
+   ],
+   "supers": "2 | Milano, every morning.\n4 | Your first sip of the day.",
+   "font_size": 64,
+   "position": "lower third",
+   "style": "white with soft shadow",
+   "fade_in_frames": 8,
+   "fade_out_frames": 8,
+   "timing_json": [
+    "tl",
+    3
+   ]
+  }
+ },
+ "cv": {
+  "class_type": "CreateVideo",
+  "inputs": {
+   "images": [
+    "su",
+    0
+   ],
+   "fps": 24
+  }
+ },
+ "sv": {
+  "class_type": "SaveVideo",
+  "inputs": {
+   "video": [
+    "cv",
+    0
+   ],
+   "filename_prefix": "SpecAd/novara_spot_v3b",
+   "format": "auto",
+   "codec": "auto"
+  }
+ },
+ "qs": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "images": [
+    "qa",
+    1
+   ],
+   "filename_prefix": "SpecAd/video_qa_v3b"
+  }
+ },
+ "pq": {
+  "class_type": "PreviewAny",
+  "inputs": {
+   "source": [
+    "qa",
+    0
+   ]
+  }
+ },
+ "pm": {
+  "class_type": "PreviewAny",
+  "inputs": {
+   "source": [
+    "mg",
+    1
+   ]
+  }
+ },
+ "pe": {
+  "class_type": "PreviewAny",
+  "inputs": {
+   "source": [
+    "eng",
+    2
+   ]
+  }
+ },
+ "ball": {
+  "class_type": "ImageBatch",
+  "inputs": {
+   "image1": [
+    "i1",
+    0
+   ],
+   "image2": [
+    "b2",
+    0
+   ]
+  }
+ }
+}

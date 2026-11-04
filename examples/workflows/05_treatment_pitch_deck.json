@@ -1,0 +1,1356 @@
+{
+ "last_node_id": 23,
+ "last_link_id": 30,
+ "nodes": [
+  {
+   "id": 1,
+   "type": "LoadImage",
+   "pos": [
+    30,
+    233
+   ],
+   "size": [
+    330,
+    372
+   ],
+   "flags": {},
+   "order": 0,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      6
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": [],
+     "slot_index": 1
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoadImage"
+   },
+   "widgets_values": [
+    "NOVARA/final_00001_.png [output]",
+    "image"
+   ],
+   "title": "Keyframe 1"
+  },
+  {
+   "id": 2,
+   "type": "LoadImage",
+   "pos": [
+    30,
+    671
+   ],
+   "size": [
+    330,
+    372
+   ],
+   "flags": {},
+   "order": 1,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      1
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": [],
+     "slot_index": 1
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoadImage"
+   },
+   "widgets_values": [
+    "NOVARA/final_00002_.png [output]",
+    "image"
+   ],
+   "title": "Keyframe 2"
+  },
+  {
+   "id": 3,
+   "type": "LoadImage",
+   "pos": [
+    30,
+    1109
+   ],
+   "size": [
+    330,
+    372
+   ],
+   "flags": {},
+   "order": 2,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      2
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": [],
+     "slot_index": 1
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoadImage"
+   },
+   "widgets_values": [
+    "NOVARA/final_00003_.png [output]",
+    "image"
+   ],
+   "title": "Keyframe 3"
+  },
+  {
+   "id": 4,
+   "type": "LoadImage",
+   "pos": [
+    420,
+    233
+   ],
+   "size": [
+    330,
+    372
+   ],
+   "flags": {},
+   "order": 3,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      5
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": [],
+     "slot_index": 1
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoadImage"
+   },
+   "widgets_values": [
+    "NOVARA/final_00004_.png [output]",
+    "image"
+   ],
+   "title": "Keyframe 4"
+  },
+  {
+   "id": 5,
+   "type": "ImageBatch",
+   "pos": [
+    900,
+    233
+   ],
+   "size": [
+    330,
+    86
+   ],
+   "flags": {},
+   "order": 6,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image1",
+     "type": "IMAGE",
+     "link": 1
+    },
+    {
+     "name": "image2",
+     "type": "IMAGE",
+     "link": 2
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      4
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ImageBatch"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 6,
+   "type": "ImageBatch",
+   "pos": [
+    1290,
+    233
+   ],
+   "size": [
+    330,
+    86
+   ],
+   "flags": {},
+   "order": 8,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image1",
+     "type": "IMAGE",
+     "link": 4
+    },
+    {
+     "name": "image2",
+     "type": "IMAGE",
+     "link": 5
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      7
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ImageBatch"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 7,
+   "type": "ShotJoin",
+   "pos": [
+    1680,
+    233
+   ],
+   "size": [
+    330,
+    86
+   ],
+   "flags": {},
+   "order": 9,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "first",
+     "type": "IMAGE",
+     "link": 6
+    },
+    {
+     "name": "rest",
+     "type": "IMAGE",
+     "link": 7
+    }
+   ],
+   "outputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "links": [
+      8,
+      9,
+      11,
+      18
+     ],
+     "slot_index": 0,
+     "shape": 6
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ShotJoin"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 8,
+   "type": "LoadImage",
+   "pos": [
+    420,
+    671
+   ],
+   "size": [
+    330,
+    372
+   ],
+   "flags": {},
+   "order": 4,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      15,
+      22
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": [
+      16,
+      23
+     ],
+     "slot_index": 1
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoadImage"
+   },
+   "widgets_values": [
+    "novara_logo_white_transparent.png",
+    "image"
+   ],
+   "title": "Logo (transparent PNG)"
+  },
+  {
+   "id": 9,
+   "type": "ShotListEditor",
+   "pos": [
+    420,
+    1109
+   ],
+   "size": [
+    420,
+    196
+   ],
+   "flags": {},
+   "order": 5,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "shot_list_json",
+     "type": "STRING",
+     "links": [
+      3,
+      10,
+      12,
+      19
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "shot_count",
+     "type": "INT",
+     "links": [],
+     "slot_index": 1
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ShotListEditor"
+   },
+   "widgets_values": [
+    "{\n  \"title\": \"NOVARA - Every morning, Milano\",\n  \"style\": \"cinematic commercial, photoreal, warm morning light, 35mm\",\n  \"shots\": [\n    {\n      \"id\": 1,\n      \"description\": \"The barista pulls an espresso shot; thick golden crema rises in the cup.\",\n      \"camera\": \"slow dolly push-in\",\n      \"duration\": 3,\n      \"image_prompt\": \"Close-up of an espresso machine spout pouring golden espresso into a small cup, warm morning window light, Milan cafe, 35mm, photoreal\",\n      \"video_prompt\": \"Thick golden espresso pours steadily, crema swirls and rises, steam curls, slow dolly push-in\"\n    },\n    {\n      \"id\": 2,\n      \"description\": \"She hands the white NOVARA paper cup across the counter to a young woman in a camel coat.\",\n      \"camera\": \"gentle handheld\",\n      \"duration\": 3.5,\n      \"image_prompt\": \"A barista with dark hair in a bun and a black apron hands a white paper cup printed NOVARA to a young woman in a camel coat across a cafe counter, warm light\",\n      \"video_prompt\": \"The barista hands the cup across the counter, the woman takes it with both hands and smiles, gentle handheld\"\n    },\n    {\n      \"id\": 3,\n      \"description\": \"The customer takes the first sip at the window and smiles.\",\n      \"camera\": \"subtle slow push-in\",\n      \"duration\": 3,\n      \"image_prompt\": \"A young woman with brown wavy hair in a camel coat sips from a white NOVARA paper cup by a cafe window, soft morning light\",\n      \"video_prompt\": \"She slowly sips, lowers the cup and smiles warmly, subtle slow push-in\"\n    },\n    {\n      \"id\": 4,\n      \"description\": \"She walks out into the sunny Milan street holding the cup.\",\n      \"camera\": \"smooth backward tracking shot\",\n      \"duration\": 3.5,\n      \"image_prompt\": \"A young woman in a camel coat walks along a sunny Milan street holding a white NOVARA paper cup, people in the background\",\n      \"video_prompt\": \"She walks toward the camera and takes a sip, smooth backward tracking shot\"\n    }\n  ]\n}"
+   ],
+   "title": "Shot list (approved)"
+  },
+  {
+   "id": 10,
+   "type": "PaletteFromShots",
+   "pos": [
+    2600,
+    224
+   ],
+   "size": [
+    330,
+    182
+   ],
+   "flags": {},
+   "order": 10,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "keyframes",
+     "type": "IMAGE",
+     "link": 8
+    }
+   ],
+   "outputs": [
+    {
+     "name": "swatches",
+     "type": "IMAGE",
+     "links": [
+      26
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "palette_json",
+     "type": "STRING",
+     "links": [],
+     "slot_index": 1
+    },
+    {
+     "name": "accent_hex",
+     "type": "STRING",
+     "links": [
+      17,
+      24
+     ],
+     "slot_index": 2
+    },
+    {
+     "name": "text_on_accent_hex",
+     "type": "STRING",
+     "links": [],
+     "slot_index": 3
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "PaletteFromShots"
+   },
+   "widgets_values": [
+    6,
+    ""
+   ]
+  },
+  {
+   "id": 11,
+   "type": "AdScriptFromShots",
+   "pos": [
+    2210,
+    224
+   ],
+   "size": [
+    330,
+    190
+   ],
+   "flags": {},
+   "order": 7,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "shot_list_json",
+     "type": "STRING",
+     "link": 3
+    }
+   ],
+   "outputs": [
+    {
+     "name": "voiceover_text",
+     "type": "STRING",
+     "links": [
+      14,
+      21
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "supers_text",
+     "type": "STRING",
+     "links": [
+      13,
+      20
+     ],
+     "slot_index": 1
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "AdScriptFromShots"
+   },
+   "widgets_values": [
+    "NOVARA",
+    "Every morning, Milano.",
+    2.5,
+    "first and last"
+   ]
+  },
+  {
+   "id": 12,
+   "type": "TreatmentBuilder",
+   "pos": [
+    420,
+    1950
+   ],
+   "size": [
+    420,
+    808
+   ],
+   "flags": {},
+   "order": 12,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "keyframes",
+     "type": "IMAGE",
+     "link": 11
+    },
+    {
+     "name": "shot_list_json",
+     "type": "STRING",
+     "link": 12
+    },
+    {
+     "name": "verdicts_json",
+     "type": "STRING",
+     "link": null,
+     "shape": 7
+    },
+    {
+     "name": "timing_json",
+     "type": "STRING",
+     "link": null,
+     "shape": 7
+    },
+    {
+     "name": "supers_text",
+     "type": "STRING",
+     "link": 13,
+     "shape": 7
+    },
+    {
+     "name": "voiceover_text",
+     "type": "STRING",
+     "link": 14,
+     "shape": 7
+    },
+    {
+     "name": "logo",
+     "type": "IMAGE",
+     "link": 15,
+     "shape": 7
+    },
+    {
+     "name": "logo_mask",
+     "type": "MASK",
+     "link": 16,
+     "shape": 7
+    },
+    {
+     "name": "accent_hex",
+     "type": "STRING",
+     "widget": {
+      "name": "accent_hex"
+     },
+     "link": 17
+    }
+   ],
+   "outputs": [
+    {
+     "name": "pdf_path",
+     "type": "STRING",
+     "links": [
+      29
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "pages",
+     "type": "IMAGE",
+     "links": [
+      27
+     ],
+     "slot_index": 1
+    },
+    {
+     "name": "page_count",
+     "type": "INT",
+     "links": [],
+     "slot_index": 2
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "TreatmentBuilder"
+   },
+   "widgets_values": [
+    "NOVARA",
+    "Spec commercial · 15s · 16:9",
+    "Somar Awad",
+    "One minute of light: a Milan morning, from the first pour to the first sip on the street.",
+    "warm, unhurried, Milanese morning",
+    "editorial dark",
+    "A4",
+    "treatment/novara_treatment",
+    "",
+    "Keyframes: Qwen Image Edit + next-scene LoRA; QA: Shot Critic; Video: Wan",
+    false,
+    "",
+    ""
+   ]
+  },
+  {
+   "id": 13,
+   "type": "PitchDeckBuilder",
+   "pos": [
+    900,
+    1950
+   ],
+   "size": [
+    420,
+    808
+   ],
+   "flags": {},
+   "order": 13,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "keyframes",
+     "type": "IMAGE",
+     "link": 18
+    },
+    {
+     "name": "shot_list_json",
+     "type": "STRING",
+     "link": 19
+    },
+    {
+     "name": "verdicts_json",
+     "type": "STRING",
+     "link": null,
+     "shape": 7
+    },
+    {
+     "name": "timing_json",
+     "type": "STRING",
+     "link": null,
+     "shape": 7
+    },
+    {
+     "name": "supers_text",
+     "type": "STRING",
+     "link": 20,
+     "shape": 7
+    },
+    {
+     "name": "voiceover_text",
+     "type": "STRING",
+     "link": 21,
+     "shape": 7
+    },
+    {
+     "name": "logo",
+     "type": "IMAGE",
+     "link": 22,
+     "shape": 7
+    },
+    {
+     "name": "logo_mask",
+     "type": "MASK",
+     "link": 23,
+     "shape": 7
+    },
+    {
+     "name": "accent_hex",
+     "type": "STRING",
+     "widget": {
+      "name": "accent_hex"
+     },
+     "link": 24
+    }
+   ],
+   "outputs": [
+    {
+     "name": "pdf_path",
+     "type": "STRING",
+     "links": [
+      30
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "slides",
+     "type": "IMAGE",
+     "links": [
+      28
+     ],
+     "slot_index": 1
+    },
+    {
+     "name": "slide_count",
+     "type": "INT",
+     "links": [],
+     "slot_index": 2
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "PitchDeckBuilder"
+   },
+   "widgets_values": [
+    "NOVARA",
+    "Spec commercial · 15s · 16:9",
+    "Somar Awad",
+    "",
+    "warm, unhurried, Milanese morning",
+    "editorial light",
+    "1920x1080",
+    "treatment/novara_pitch_deck",
+    "",
+    "Keyframes: Qwen Image Edit + next-scene LoRA; QA: Shot Critic; Video: Wan",
+    false,
+    "",
+    ""
+   ]
+  },
+  {
+   "id": 14,
+   "type": "StoryboardSheet",
+   "pos": [
+    30,
+    1950
+   ],
+   "size": [
+    330,
+    264
+   ],
+   "flags": {},
+   "order": 11,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "keyframes",
+     "type": "IMAGE",
+     "link": 9
+    },
+    {
+     "name": "shot_list_json",
+     "type": "STRING",
+     "link": 10
+    },
+    {
+     "name": "timing_json",
+     "type": "STRING",
+     "link": null,
+     "shape": 7
+    }
+   ],
+   "outputs": [
+    {
+     "name": "sheet",
+     "type": "IMAGE",
+     "links": [
+      25
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "pdf_path",
+     "type": "STRING",
+     "links": [],
+     "slot_index": 1
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "StoryboardSheet"
+   },
+   "widgets_values": [
+    4,
+    "A4 landscape",
+    true,
+    "treatment/novara_storyboard",
+    "NOVARA",
+    ""
+   ]
+  },
+  {
+   "id": 15,
+   "type": "PreviewImage",
+   "pos": [
+    1380,
+    1950
+   ],
+   "size": [
+    330,
+    260
+   ],
+   "flags": {},
+   "order": 16,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "link": 27
+    }
+   ],
+   "outputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "links": [],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "PreviewImage"
+   },
+   "widgets_values": [],
+   "title": "Treatment pages"
+  },
+  {
+   "id": 16,
+   "type": "PreviewImage",
+   "pos": [
+    1380,
+    2276
+   ],
+   "size": [
+    330,
+    260
+   ],
+   "flags": {},
+   "order": 17,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "link": 28
+    }
+   ],
+   "outputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "links": [],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "PreviewImage"
+   },
+   "widgets_values": [],
+   "title": "Deck slides"
+  },
+  {
+   "id": 17,
+   "type": "PreviewImage",
+   "pos": [
+    900,
+    2824
+   ],
+   "size": [
+    330,
+    260
+   ],
+   "flags": {},
+   "order": 14,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "link": 25
+    }
+   ],
+   "outputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "links": [],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "PreviewImage"
+   },
+   "widgets_values": [],
+   "title": "Storyboard"
+  },
+  {
+   "id": 18,
+   "type": "PreviewImage",
+   "pos": [
+    2990,
+    224
+   ],
+   "size": [
+    330,
+    260
+   ],
+   "flags": {},
+   "order": 15,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "link": 26
+    }
+   ],
+   "outputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "links": [],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "PreviewImage"
+   },
+   "widgets_values": [],
+   "title": "Palette"
+  },
+  {
+   "id": 19,
+   "type": "PreviewAny",
+   "pos": [
+    1380,
+    2602
+   ],
+   "size": [
+    380,
+    260
+   ],
+   "flags": {},
+   "order": 18,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "source",
+     "type": "*",
+     "link": 29
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "PreviewAny"
+   },
+   "widgets_values": [],
+   "title": "Treatment PDF"
+  },
+  {
+   "id": 20,
+   "type": "PreviewAny",
+   "pos": [
+    1380,
+    2928
+   ],
+   "size": [
+    380,
+    260
+   ],
+   "flags": {},
+   "order": 19,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "source",
+     "type": "*",
+     "link": 30
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "PreviewAny"
+   },
+   "widgets_values": [],
+   "title": "Deck PDF"
+  },
+  {
+   "id": 21,
+   "type": "Note",
+   "pos": [
+    30,
+    70
+   ],
+   "size": [
+    900,
+    97
+   ],
+   "flags": {},
+   "order": 20,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [],
+   "properties": {},
+   "widgets_values": [
+    "Approved keyframes (one per shot, here the stills from 03_novara_stills_spot), the shot list (from Shot Planner or pasted into Shot List Editor) and a logo with transparency. No models or API keys needed: everything below runs on the CPU."
+   ],
+   "color": "#432",
+   "bgcolor": "#653",
+   "title": "Note: 1 · Keyframes, shot list, logo"
+  },
+  {
+   "id": 22,
+   "type": "Note",
+   "pos": [
+    2210,
+    70
+   ],
+   "size": [
+    900,
+    88
+   ],
+   "flags": {},
+   "order": 21,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [],
+   "properties": {},
+   "widgets_values": [
+    "Palette From Shots extracts named colours and an accent from the keyframes. Ad Script From Shots writes voiceover lines and supers that fit each shot's duration."
+   ],
+   "color": "#432",
+   "bgcolor": "#653",
+   "title": "Note: 2 · Palette and script"
+  },
+  {
+   "id": 23,
+   "type": "Note",
+   "pos": [
+    30,
+    1787
+   ],
+   "size": [
+    900,
+    97
+   ],
+   "flags": {},
+   "order": 22,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [],
+   "properties": {},
+   "widgets_values": [
+    "Treatment Builder lays out a director's treatment (A4 / Letter, 300 dpi), Pitch Deck Builder a 16:9 deck, Storyboard Sheet a print-ready board with camera arrows. PDFs are written to output/treatment/. Templates: editorial dark, editorial light, agency minimal."
+   ],
+   "color": "#432",
+   "bgcolor": "#653",
+   "title": "Note: 3 · Treatment, pitch deck, storyboard (PDF)"
+  }
+ ],
+ "links": [
+  [
+   1,
+   2,
+   0,
+   5,
+   0,
+   "IMAGE"
+  ],
+  [
+   2,
+   3,
+   0,
+   5,
+   1,
+   "IMAGE"
+  ],
+  [
+   3,
+   9,
+   0,
+   11,
+   0,
+   "STRING"
+  ],
+  [
+   4,
+   5,
+   0,
+   6,
+   0,
+   "IMAGE"
+  ],
+  [
+   5,
+   4,
+   0,
+   6,
+   1,
+   "IMAGE"
+  ],
+  [
+   6,
+   1,
+   0,
+   7,
+   0,
+   "IMAGE"
+  ],
+  [
+   7,
+   6,
+   0,
+   7,
+   1,
+   "IMAGE"
+  ],
+  [
+   8,
+   7,
+   0,
+   10,
+   0,
+   "IMAGE"
+  ],
+  [
+   9,
+   7,
+   0,
+   14,
+   0,
+   "IMAGE"
+  ],
+  [
+   10,
+   9,
+   0,
+   14,
+   1,
+   "STRING"
+  ],
+  [
+   11,
+   7,
+   0,
+   12,
+   0,
+   "IMAGE"
+  ],
+  [
+   12,
+   9,
+   0,
+   12,
+   1,
+   "STRING"
+  ],
+  [
+   13,
+   11,
+   1,
+   12,
+   4,
+   "STRING"
+  ],
+  [
+   14,
+   11,
+   0,
+   12,
+   5,
+   "STRING"
+  ],
+  [
+   15,
+   8,
+   0,
+   12,
+   6,
+   "IMAGE"
+  ],
+  [
+   16,
+   8,
+   1,
+   12,
+   7,
+   "MASK"
+  ],
+  [
+   17,
+   10,
+   2,
+   12,
+   8,
+   "STRING"
+  ],
+  [
+   18,
+   7,
+   0,
+   13,
+   0,
+   "IMAGE"
+  ],
+  [
+   19,
+   9,
+   0,
+   13,
+   1,
+   "STRING"
+  ],
+  [
+   20,
+   11,
+   1,
+   13,
+   4,
+   "STRING"
+  ],
+  [
+   21,
+   11,
+   0,
+   13,
+   5,
+   "STRING"
+  ],
+  [
+   22,
+   8,
+   0,
+   13,
+   6,
+   "IMAGE"
+  ],
+  [
+   23,
+   8,
+   1,
+   13,
+   7,
+   "MASK"
+  ],
+  [
+   24,
+   10,
+   2,
+   13,
+   8,
+   "STRING"
+  ],
+  [
+   25,
+   14,
+   0,
+   17,
+   0,
+   "IMAGE"
+  ],
+  [
+   26,
+   10,
+   0,
+   18,
+   0,
+   "IMAGE"
+  ],
+  [
+   27,
+   12,
+   1,
+   15,
+   0,
+   "IMAGE"
+  ],
+  [
+   28,
+   13,
+   1,
+   16,
+   0,
+   "IMAGE"
+  ],
+  [
+   29,
+   12,
+   0,
+   19,
+   0,
+   "STRING"
+  ],
+  [
+   30,
+   13,
+   0,
+   20,
+   0,
+   "STRING"
+  ]
+ ],
+ "groups": [
+  {
+   "id": 1,
+   "title": "1 · Keyframes, shot list, logo",
+   "bounding": [
+    0,
+    0,
+    2040,
+    1577
+   ],
+   "color": "#3f789e",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 2,
+   "title": "2 · Palette and script",
+   "bounding": [
+    2180,
+    0,
+    1170,
+    580
+   ],
+   "color": "#b58b2a",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 3,
+   "title": "3 · Treatment, pitch deck, storyboard (PDF)",
+   "bounding": [
+    0,
+    1717,
+    1790,
+    1567
+   ],
+   "color": "#7a5a3a",
+   "font_size": 24,
+   "flags": {}
+  }
+ ],
+ "config": {},
+ "extra": {
+  "ds": {
+   "scale": 0.5,
+   "offset": [
+    0,
+    0
+   ]
+  },
+  "shotplanner": {
+   "source_api": "examples/api/treatment_pitch_deck_api.json",
+   "third_party_nodes": []
+  }
+ },
+ "version": 0.4
+}

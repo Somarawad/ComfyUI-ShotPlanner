@@ -1,2 +1,29 @@
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# secrets: keep API keys out of the repo
+.env
+.env.*
+*.key
+
+# generated output (ComfyUI output folders, PDFs and renders written by tests or tools)
+output/
+outputs/
+temp/
+node.zip
+*.mp4
+
+# tools
+node_modules/
+
+# editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

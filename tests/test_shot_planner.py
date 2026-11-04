@@ -87,11 +87,52 @@ class Tests(unittest.TestCase):
                 sp.plan_shots("A brief.", provider="anthropic")
         self.assertIn("ANTHROPIC_API_KEY", str(cm.exception))
 
+    def test_gemini_reads_google_api_key_too(self):
+        seen = {}
+
+        def fake(req, timeout=0):
+            seen["headers"] = {k.lower(): v for k, v in req.header_items()}
+            return FakeResp({"candidates": [{"content": {"parts": [{"text": json.dumps(REPLY)}]}}]})
+
+        with mock.patch.dict(os.environ, {"GOOGLE_API_KEY": "g-key"}, clear=True), \
+                mock.patch("urllib.request.urlopen", fake):
+            sp.plan_shots("A brief.", provider="gemini", num_shots=2)
+            self.assertEqual(sp.env_key("gemini"), "g-key")
+        self.assertEqual(seen["headers"]["x-goog-api-key"], "g-key")
+        with mock.patch.dict(os.environ, {"GOOGLE_API_KEY": "g", "GEMINI_API_KEY": "primary"}, clear=True):
+            self.assertEqual(sp.env_key("gemini"), "primary")
+
     def test_env_key_used(self):
         with mock.patch.dict(os.environ, {"OPENAI_API_KEY": "env-key"}):
             _, seen = self._run_provider("openai", {"choices": [{"message": {"content": json.dumps(REPLY)}}]})
         # explicit api_key wins over env
         self.assertEqual(seen["headers"]["authorization"], "Bearer k-123")
+
+    def test_retry_on_503(self):
+        calls = {"n": 0}
+
+        def flaky(req, timeout=0):
+            calls["n"] += 1
+            if calls["n"] == 1:
+                import io, urllib.error
+                raise urllib.error.HTTPError(req.full_url, 503, "busy", {}, io.BytesIO(b'{"error":"busy"}'))
+            return FakeResp({"candidates": [{"content": {"parts": [{"text": json.dumps(REPLY)}]}}]})
+
+        with mock.patch("urllib.request.urlopen", flaky), mock.patch("time.sleep"):
+            p = sp.plan_shots("A brief.", provider="gemini", api_key="k", num_shots=2)
+        self.assertEqual(calls["n"], 2)
+        self.assertEqual(len(p["shots"]), 2)
+
+    def test_no_retry_on_401(self):
+        import io, urllib.error
+
+        def bad(req, timeout=0):
+            raise urllib.error.HTTPError(req.full_url, 401, "no", {}, io.BytesIO(b"bad key"))
+
+        with mock.patch("urllib.request.urlopen", bad), mock.patch("time.sleep") as sl:
+            with self.assertRaises(sp.ShotPlannerError):
+                sp.plan_shots("A brief.", provider="gemini", api_key="k")
+        sl.assert_not_called()
 
     def test_empty_brief(self):
         with self.assertRaises(sp.ShotPlannerError):
